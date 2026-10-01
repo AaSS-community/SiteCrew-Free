@@ -1,0 +1,24 @@
+# SiteCrew Free
+# Secrets: tokens live here, never in git and never in the chat
+.env
+.env.*
+!.env.example
+
+# The owner's material: the old site's export and the new site's own repo
+my-old-site/
+site/
+
+# The agent's local notes, memory and progress
+My-Vault/
+.agent/
+.claude/data/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# OS / logs
+*.log
+.DS_Store
+Thumbs.db
