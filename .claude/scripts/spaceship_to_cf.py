@@ -356,6 +356,8 @@ def _cli() -> None:
             result = _migrate_domain(ss, cf, domain, dry_run=dry_run)
             print(f"\n  Status:  {result['status']}")
             print(f"  Message: {result['message']}")
+            if result["status"] == "blocked":
+                sys.exit(1)
 
         elif cmd == "status":
             if len(sys.argv) < 3:

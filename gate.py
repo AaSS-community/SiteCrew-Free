@@ -23,9 +23,14 @@ SKIP_DIRS = {".git", "site", "my-old-site", "My-Vault", "__pycache__", ".venv", 
 
 # Words that must not ship. gate.py is excluded from this scan (it names them).
 BANNED = ["admin:repo_hook", "No expiration", "paramiko", "ssh_binary",
-          "heartbeat", "svsinc", "Strategic Viral Services", "[DOMAIN_SLUG]"]
+          "heartbeat", "github.com/svsinc", "sitecrew.ai", "[DOMAIN_SLUG]"]
 
 BANNED_MD_ONLY = ["\u2014"]  # the em-dash character
+# Claims the kit must not make (house copy laws); matched in .md files, case-insensitive.
+BANNED_MD_PHRASES = ["no monthly fees", "20-30 minutes", "~$10/year", ".ca ", "CA$", "Canadian"]
+# GUIDE.md and README.md are public pages: no private research file, no local path.
+PUBLIC_DOCS = ("GUIDE.md", "README.md")
+PUBLIC_BANNED = ["kit-research", "c:\\users", "c:/users", "/users/", "\\projects\\"]
 
 failures = 0
 
@@ -87,6 +92,9 @@ def check_text() -> None:
         hits += [f"{rel(p)}: {w}" for w in BANNED if w.lower() in text]
         if p.suffix == ".md":
             hits += [f"{rel(p)}: em-dash character" for w in BANNED_MD_ONLY if w in text]
+            hits += [f"{rel(p)}: {w}" for w in BANNED_MD_PHRASES if w.lower() in text]
+            if p.parent == ROOT and p.name in PUBLIC_DOCS:
+                hits += [f"{rel(p)}: {w}" for w in PUBLIC_BANNED if w in text]
     report(not hits, "no banned text in .md/.py" + "".join(f"\n      {h}" for h in hits))
 
 
@@ -204,6 +212,28 @@ def check_refusals() -> None:
         report(ok, f"{name} {args[0]} refuses without --owner-approved")
 
 
+# 8. The knowledge files exist and CLAUDE.md stays a thin pointer to AGENTS.md
+def check_knowledge() -> None:
+    names = ("AGENTS.md", "GUIDE.md", "README.md", "CLAUDE.md")
+    missing = [n for n in names if not (ROOT / n).exists()]
+    report(not missing, "AGENTS.md, GUIDE.md, README.md, CLAUDE.md exist"
+           + "".join(f"\n      missing: {m}" for m in missing))
+    claude = ROOT / "CLAUDE.md"
+    ok = claude.exists() and "@AGENTS.md" in claude.read_text(encoding="utf-8")
+    report(ok, "CLAUDE.md contains @AGENTS.md")
+
+
+# 9. In the setup command, the secret scan comes BEFORE the first git commit
+def check_scan_order() -> None:
+    path = ROOT / ".claude" / "commands" / "init-client-free.md"
+    text = path.read_text(encoding="utf-8") if path.exists() else ""
+    heading = re.search(r"^### Secret scan", text, re.MULTILINE)  # the step itself, not the Step 5 title
+    commit = text.find("git commit")
+    ok = bool(heading) and commit != -1 and heading.start() < commit
+    why = "" if ok else "\n      the 'Secret scan' heading must appear before the first 'git commit'"
+    report(ok, "init-client-free.md: secret scan comes before the first git commit" + why)
+
+
 # 5. No .env tracked or lying around outside .env.example
 def _is_env(name: str) -> bool:
     return name == ".env" or (name.startswith(".env.") and name != ".env.example")
@@ -234,6 +264,8 @@ check_references()
 check_env()
 check_selftest()
 check_refusals()
+check_knowledge()
+check_scan_order()
 
 print("GATE PASS" if not failures else f"GATE FAIL ({failures})")
 sys.exit(0 if not failures else 1)

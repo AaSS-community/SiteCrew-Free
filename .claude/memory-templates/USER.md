@@ -30,4 +30,4 @@
 ## Brand
 - Tone: [BRAND_TONE]
 - Goal: [PRIMARY_GOAL]
-- Colours: [HEX_CODES or description]
+- Colors: [HEX_CODES or description]

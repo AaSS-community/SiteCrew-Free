@@ -1,450 +1,401 @@
 ---
-description: Free SiteCrew setup: static website on Cloudflare Pages with GitHub. Guides new users A-Z from zero to live site.
+description: Free SiteCrew setup: a website on Cloudflare Pages through GitHub, for a site you move or a new site. Guides the owner step by step.
 ---
 
 # /init-client-free: SiteCrew Free Setup
 
-Guides the user from a fresh install all the way to a live static website on Cloudflare Pages.
-No server, no database, no monthly hosting fees.
+Guides the owner from a fresh install to a live website on Cloudflare Pages. It follows AGENTS.md
+(the four safety rules) and GUIDE.md (the owner's version, with receipts). Read both first.
+
+The order the owner lives, in short: options, build in `site/`, secret scan, first publish on
+"yes, publish", Pages checked on `*.pages.dev`, mail-check, DNS conflicts on yes, nameservers, both
+names verified, email tested both ways, and only then a talk about cancelling the old service.
+
+Never state a price or a duration you cannot back. Use GUIDE.md's receipts or a page you just read,
+and say where it came from. For anything slow (builds, DNS, certificates), say "watch the status in
+Cloudflare" and check it, instead of promising a time.
 
 ---
 
 ## Before Starting
 
-Check if this workspace is already initialized:
-
 ```
 Glob: .agent/free-setup-progress.md
 ```
 
-**If the file exists and shows COMPLETE:**
-> "This workspace is already set up for [client name]. Your site is live at [domain].
-> What would you like to do? I can help you push changes, update content, or add pages."
-> Stop here.
+**If it exists and shows COMPLETE:**
+> "This workspace is already set up for [client name]. Your site is at [domain].
+> What would you like to change or add?"
+> Stop here (changes follow AGENTS.md: show what changes, wait for "yes, publish").
 
-**If the file exists and shows IN PROGRESS:**
-Read `.agent/free-setup-progress.md` and resume from the last incomplete step.
-Tell the user: "We started setup before, resuming from Step [N]: [step name]."
+**If it exists and shows IN PROGRESS:** read it, tell the owner "We started setup before, resuming
+from Step [N]: [step name]", and continue from there.
 
-**If neither exists:** Fresh install. Proceed below.
+**If neither exists:** fresh install. Proceed.
 
 ---
 
 ## STEP 0: Welcome
 
-Say:
+> "Welcome to SiteCrew Free. I'll walk you through getting your website onto Cloudflare Pages,
+> one step at a time. Hosting there has a free tier. Your domain is a yearly cost, and the AI
+> plan I run on may cost something too; GUIDE.md chapter 0 has the numbers and where they come from.
+>
+> Some steps need a few clicks in your browser. I'll tell you exactly what to do each time.
+> Nothing is published until you say "yes, publish".
+>
+> What's your name?"
 
-> "Welcome to SiteCrew Free, your website crew in a box.
->
-> I'm going to walk you through getting your website live on Cloudflare Pages.
-> It's free hosting, auto-deploys from GitHub, and takes about 20-30 minutes end to end.
->
-> I'll ask you some questions along the way. Some steps require you to click a few things
-> in your browser, I'll tell you exactly what to do each time.
->
-> Let's start. What's your name?"
-
-Wait for their name. Use it throughout the session.
+Wait for the name. Use it from now on.
 
 ---
 
 ## STEP 1: Quick Interview
 
-Ask these questions **one at a time**. Wait for each answer.
+Ask **one at a time**, waiting for each answer.
 
-1. "What's the name of your business or project?"
+1. "Do you have a website now that you want to move (road 1), or do you want a new site, or one more site (road 2)?"
+   Save `ROAD` as `move` or `fresh`. (One site per folder: a second site means a second copy of this kit.)
+2. "What's the name of your business or project?"
+3. "What do you do, and who is it for? (2-3 sentences)"
+4. "What's the main goal of the website? (calls or emails, bookings, showing your work, selling something, other)"
+5. "What's the tone of your brand? (for example professional, friendly, bold, minimal)"
+6. "Do you already have a domain name? (like mybusiness.com)"
+7. Road 1 only: "Where does the site live today, and where is the domain registered?" Remind them:
+   a domain that came with a builder may need an unlock and an authorization code to move
+   (GUIDE.md chapter 1, Warning 1), and transfers can have a waiting period.
 
-2. "What do you do, and who is it for? (2-3 sentences is perfect)"
-
-3. "What's the main goal of the website?
-   - Get people to call or email you
-   - Book appointments
-   - Showcase your work / portfolio
-   - Sell something
-   - Something else, describe it"
-
-4. "What's the tone of your brand?
-   For example: professional and trustworthy, friendly and approachable,
-   bold and energetic, clean and minimal..."
-
-5. "Do you already have a domain name? (like mybusiness.com)"
-
-Save all answers. You'll use them when building or reviewing the site content.
+Save the answers.
 
 ---
 
-## STEP 2: Domain Setup
+## STEP 2: Cloudflare account, domain and token
 
-### If they said NO to having a domain:
+### No domain yet
 
-> "No problem, let's get you one. I recommend Cloudflare Registrar.
-> It's the cheapest option (no markup over cost), and it puts your domain
-> right inside Cloudflare which makes the rest of setup automatic.
+> "Cloudflare Registrar sells domains at cost, with no markup (Cloudflare's own statement:
+> https://developers.cloudflare.com/registrar/faq/). Current prices are at https://pricing.registrar.cloudflare.com/ .
 >
-> 1. Go to: https://www.cloudflare.com/products/registrar/
-> 2. Sign up for a free Cloudflare account if you don't have one
-> 3. Search for your domain name
-> 4. Buy it (most .com domains are ~$10/year)
+> 1. Sign up for a free Cloudflare account at https://dash.cloudflare.com if you don't have one
+> 2. Search for the domain you want and buy it
 >
-> Come back and tell me the domain name you bought."
+> Tell me the domain you bought."
 
-Wait. Once they return with their domain name, they're automatically on Cloudflare, skip the NS propagation wait below and jump straight to the API token step.
+It is then already on Cloudflare. Go to "Cloudflare API Token" below.
 
----
+### Domain you already have
 
-### If they said YES to having a domain:
+Ask: "Is it already on Cloudflare? (Its nameservers say something like `aria.ns.cloudflare.com`.)"
 
-Ask: "Is it already on Cloudflare? (If you're not sure, check your registrar, it's on Cloudflare if the nameservers say something like `aria.ns.cloudflare.com`)"
+**Yes:** go to "Cloudflare API Token" below.
 
-**If YES, already on Cloudflare:** Skip to the API token step below.
+**No:**
 
-**If NO, not on Cloudflare yet:**
+> "I need the domain added to Cloudflare first. **Do not change your nameservers yet.**
+> 1. Create a free account at https://dash.cloudflare.com if you don't have one
+> 2. Click 'Add a Site', type your domain, choose the Free plan, and let Cloudflare scan your DNS records
+> 3. Stop at the screen that shows two Cloudflare nameservers. Tell me when you're there."
 
-> "I need to add your domain to Cloudflare first. Here's exactly what to do:
->
-> **Step 1, Create a free Cloudflare account (if you don't have one)**
-> Go to: https://cloudflare.com → Sign Up → Free plan
->
-> **Step 2, Add your domain**
-> In the Cloudflare dashboard:
-> - Click 'Add a Site'
-> - Type your domain name and click 'Add Site'
-> - Choose the Free plan → Continue
-> - Cloudflare will scan your existing DNS records, click 'Continue'
->
-> **Step 3, Stop here, do NOT change nameservers yet**
-> Cloudflare will show you two nameservers. Don't use them yet. First I check that your
-> email records made it into Cloudflare, so your email keeps working. Tell me when you're here."
-
-**Before any nameserver change, get the Cloudflare token and run the mail check.**
-Do the "Cloudflare API Token" section below first (the zone now exists, so the token can be limited to it), then:
-
-```bash
-python .claude/scripts/cf_api.py mail-check [DOMAIN]
-```
-
-- **Exit 0 (PASS):** continue to the nameserver change below.
-- **Exit 1 (MISMATCH):** STOP. Show the owner the table and the missing records. Add the missing
-  records in Cloudflare first (DNS only, not proxied), then run `mail-check` again. Repeat until it
-  passes. Only then move nameservers.
-- Always tell the owner the limit the script prints: DKIM selectors can't be listed from outside,
-  so they should also compare with their mail provider's setup page.
-- If you use `namecheap_to_cf.py` or `spaceship_to_cf.py` to switch nameservers, they need `--owner-approved`
-  (the owner's yes) and run `mail-check` themselves right before the change; they stop if it fails.
-  One domain at a time.
-
-Moving mailboxes is not this kit's job. Email side note: see GUIDE.md chapter 6b.
-
-**Only after `mail-check` passes**, tell them:
-
-> "Mail records are safe. Now update your nameservers.
-> Cloudflare shows two (like `aria.ns.cloudflare.com` and `beck.ns.cloudflare.com`).
-> Log into your domain registrar and set BOTH nameservers to what Cloudflare shows you.
->
-> Which registrar do you use? (GoDaddy, Namecheap, Dynadot, Google, other?)
-> I can give you step-by-step instructions for your specific registrar."
-
-Give registrar-specific nameserver change instructions based on their answer.
-
-> "Once you've changed the nameservers, Cloudflare will send you an email with the subject:
-> '[your domain] is now active on Cloudflare'
->
-> That can take anywhere from 5 minutes to a few hours depending on your registrar.
-> No rush, come back here once you get that email."
-
-**WAIT** for them to confirm they received the Cloudflare activation email before continuing.
-
----
+The nameservers move later, in Step 7, after the site works and the mail records are checked.
 
 ### Cloudflare API Token
-
-Needs the domain added to Cloudflare (so the token can be limited to that one zone).
 
 > "Now I need an API token so I can set up your hosting. **You paste it into a file yourself;
 > never paste it here in the chat.**
 >
 > 1. Go to: https://dash.cloudflare.com/profile/api-tokens
-> 2. Click 'Create Token', then 'Create Custom Token' (at the bottom)
-> 3. Give it a name like 'SiteCrew'
-> 4. Under Permissions, add these three:
+> 2. 'Create Token', then 'Create Custom Token' (at the bottom). Name it 'SiteCrew'
+> 3. Permissions, add these three:
 >    - Zone → Zone → Read
 >    - Zone → DNS → Edit
 >    - Account → Cloudflare Pages → Edit
-> 5. Under Zone Resources: 'Include → Specific zone → [your domain]' (this limits both Zone permissions to your domain)
-> 6. Click 'Continue to summary' → 'Create Token' and copy the token (you only see it once)
-> 7. Copy `.claude/scripts/.env.example` to `.claude/scripts/.env` (if you haven't yet),
->    open `.env` in your editor and paste the token after `CF_API_TOKEN=`. Save the file.
+> 4. Zone Resources: 'Include → Specific zone → [your domain]' (limits both Zone permissions to your domain)
+> 5. 'Continue to summary' → 'Create Token' and copy the token (you only see it once)
+> 6. Copy `.claude/scripts/.env.example` to `.claude/scripts/.env` (if you haven't yet), open `.env`
+>    in your editor, paste the token after `CF_API_TOKEN=`, and save.
 >
 > Tell me when it's saved. (Don't tell me the token.)"
 
-Never ask for, echo, or print the token. Then the Account ID (not secret):
+Then the Account ID (not secret):
 
-> "One more thing, your Cloudflare Account ID:
-> 1. Go to: https://dash.cloudflare.com
-> 2. In the left sidebar, expand **Domains** and click your domain name
-> 3. Click **Overview** (top of the left menu)
-> 4. On the right side of the page, scroll down to the **API** section
-> 5. Copy the **Account ID** (not the Zone ID) and put it after `CF_ACCOUNT_ID=` in `.env`"
+> "Your Cloudflare Account ID: open your domain in the dashboard, then Overview, and find the **API**
+> section on the right. Copy the **Account ID** (not the Zone ID) and put it after `CF_ACCOUNT_ID=` in `.env`."
 
-Verify the token works:
+Never ask for, echo or print a token. Verify:
+
 ```bash
 python .claude/scripts/cf_api.py zones
 ```
 
-If it lists zones including their domain: "Great, Cloudflare is connected."
-If it errors: help them troubleshoot the token permissions before continuing.
+It should list their domain. If it errors, help fix the token permissions before going on.
 
 ---
 
-## STEP 3: GitHub Setup
+## STEP 3: GitHub (one repository, least access)
 
-Ask: "Do you have a GitHub account?"
-
-**If NO:**
-> "GitHub is where your website's code lives. It's free.
-> 1. Go to: https://github.com → Sign Up
-> 2. Come back once your account is created."
-> Wait.
-
-**Then (the kit only ever gets access to ONE repository):**
+Ask: "Do you have a GitHub account?" If not: "GitHub is where your site's files live. It's free. Sign up at https://github.com and come back."
 
 > "Please create ONE empty repository for your website:
-> 1. Go to: https://github.com/new
-> 2. Name it (for example `mybusiness-site`), leave it empty (no README, no .gitignore, no license)
-> 3. Click 'Create repository' and tell me its address (like https://github.com/your-username/mybusiness-site)"
+> 1. Go to https://github.com/new
+> 2. Name it (for example `mybusiness-site`), leave it empty (no README, .gitignore or license)
+> 3. Click 'Create repository' and tell me its address."
 
-Parse the owner and repo name from the URL. Save as `GITHUB_OWNER` and `GITHUB_REPO`.
-Ask: "Is the repository public or private?" Save as `GITHUB_REPO_VISIBILITY`.
+Parse the address into `GITHUB_OWNER` and `GITHUB_REPO`. Ask whether the repository is public or private.
 
-Then the token, limited to that one repository:
-
-> "Now a token that can touch only that repository. **You paste it into a file yourself;
-> never paste it here in the chat.**
+> "Now a token limited to that repository's files. **You paste it into a file yourself; never paste it
+> here in the chat.**
 >
-> 1. Go to: https://github.com/settings/personal-access-tokens/new
-> 2. Token name: 'SiteCrew'. Expiration: **90 days**
-> 3. Repository access: **Only select repositories** → choose your one repository
-> 4. Repository permissions: **Contents → Read and write** (Metadata: Read is added automatically).
->    Leave everything else at 'No access'.
-> 5. Click 'Generate token' and copy it
-> 6. Open `.claude/scripts/.env` in your editor, paste it after `GITHUB_TOKEN=`, and write
->    `GITHUB_REPO=your-username/mybusiness-site` on the next line. Save the file.
+> 1. Go to https://github.com/settings/personal-access-tokens/new
+> 2. Token name 'SiteCrew'. Expiration: **90 days**
+> 3. Repository access: **Only select repositories**, then choose your one repository
+> 4. Repository permissions: **Contents → Read and write** (Metadata: Read is added automatically). Leave the rest at 'No access'
+> 5. 'Generate token' and copy it
+> 6. In `.claude/scripts/.env`, paste it after `GITHUB_TOKEN=` and write `GITHUB_REPO=your-username/mybusiness-site` on the next line. Save.
 >
 > Tell me when it's saved. (Don't tell me the token.)"
 
-Never ask for, echo, or print the token. Verify:
+Never ask for, echo or print a token. Verify:
 
 ```bash
 python .claude/scripts/github_api.py check
 ```
 
-It must report push access and "Other repositories this token reaches: 0". If it fails, walk the owner
-through making a new fine-grained token for the single repository.
+It must say the token reaches the repository with push access. Then ask the owner to confirm, in
+GitHub's token settings, the three things the script prints: only this repository is selected,
+Contents is Read and write, and the token has an expiry date. Be plain about what this means: the
+token can only WRITE to that one repository. Fine-grained tokens can still read public repositories.
+Wait for the owner's confirmation. If `check` fails, make a new token for the one repository.
 
 ---
 
-## STEP 4: Site Files
+## STEP 4: Choose how to build, then build in `site/`
 
-Ask: "What's the situation with your website files?"
+The site always lives in `site/` (git-ignored, it becomes the owner's own repository).
 
-**Option A: Files are already in the GitHub repo:**
-> "Perfect, Cloudflare will build directly from your repo. Nothing to do here."
-> Ask: "What technology is the site built with? (Plain HTML/CSS, Next.js, Astro, Vite, Gatsby, other?)"
-> Save `SITE_FRAMEWORK`, we'll use this to set the right build command in Step 6.
+### Choose (both roads)
 
-**Option B: Files are on your computer, not yet on GitHub:**
-> "Drop the website files into a folder called `site/` here in this directory.
-> Tell me when you've done that and I'll show you what will be published."
+Think the problem through, then offer a short list with trade-offs, say which you would pick and why,
+and let the owner choose:
+
+- **Plain HTML/CSS:** simplest, you edit files directly, fewer moving parts.
+- **WordPress, as a static export** (for example with the Simply Static plugin): the owner keeps
+  working in WordPress, and the exported static files go on Pages. A live WordPress site is a
+  different road (SiteCrew Paid), not this kit.
+- **Astro** (or another static generator): templates and blogs are easy, needs a build step.
+- **Next.js** with `output: 'export'` only: powerful, heavier to maintain.
+- **Others** the owner names (Vite, Gatsby...).
+
+Save `SITE_FRAMEWORK` (`html`, `nextjs`, `astro`, `vite`, `gatsby`, `other`; a WordPress static export
+is `html`, a folder of static files).
+
+### Road 1 (move): get the content
+
+Official export first, then a careful copy of the owner's own words and photos. Say plainly what cannot
+come along: the builder's template, licensed images, platform features (forms, stores, bookings). Scraping
+terms are a legal question; do not answer it, point to the builder's terms. Build a NEW design for the content.
+
+**Option A: the files are already in a GitHub repository.** Ask for the address and clone it into `site/`:
+`git clone <address> site`. Inspect it (what framework, what pages). Go to Step 5, the secret scan, on the
+files you just cloned. Nothing goes live until the owner says "yes, publish" in Step 5.
+
+**Option B: the files are on the owner's computer.** "Drop the files into a folder called `site/` here."
+Build the new design from the content there.
+
+### Road 2 (fresh): examples or a template first
+
+> "First, show me what you like. Any of these works: links to sites you admire; screenshots, a sketch or
+> a mock-up; the overall idea in plain words; or a template, bought or free.
 >
-> Once they confirm, prepare the commit (no push yet):
-> ```bash
-> cd site/
-> git init -b main
-> git add .
-> git commit -m "Initial site"
-> ```
-> Then do the **first publish** (see "First publish" below). Set `SITE_FRAMEWORK` to "html" unless they tell you otherwise.
+> I take ideas from sites you like. I don't copy another site's code, text or images."
 
-**Option C: No website yet, build from scratch:**
-> "No problem, I'll build a clean static website based on what you told me about your business.
->
-> Here's what I'll create:
-> - Home page (headline, what you do, call to action)
-> - Services/About section
-> - Contact section (phone, email, address if applicable)
-> - Clean, modern design with your brand colours
->
-> This will be a plain HTML/CSS site, fast, no dependencies.
->
-> Give me a moment to build it..."
+If they name a template, read its license with them BEFORE building (attribution? client work? one site
+only?) and say plainly what it allows. GUIDE.md chapter 1b lists common free-template licenses.
 
-Build the site:
-- Create `site/` folder with `index.html`, `css/style.css`, and any subpages
-- Use business name, description, services, brand tone, and colours from the interview
-- Keep it clean: semantic HTML5, one CSS file, mobile-responsive, no JavaScript frameworks
-- Include a `<title>`, meta description, and Open Graph tags
+Build the site in `site/`: use the business details and tone from the interview and their examples;
+semantic HTML5, mobile-responsive, a `<title>`, a meta description and Open Graph tags.
 
-Then prepare the commit and do the **first publish** as in Option B. Set `SITE_FRAMEWORK` to "html".
+The owner looks at it on their own computer (not public) and asks for changes until they like it.
 
 ---
+
+## STEP 5: Secret scan, then the first publish
+
+### Secret scan (before any commit)
+
+Do this on the files in `site/` BEFORE `git add` or any commit. A secret that gets into a commit stays in
+the history, and the first push would publish that history.
+
+List every file (`find site -type f`, skipping `node_modules`) and show the owner the list. Look for
+things that must never be published: `.env` or `.env.*`, `*.sql`, `*.bak`, `*.old`, `*.zip`,
+`wp-config.php`, private keys (`*.pem`, `*.key`, `id_rsa*`), and any file whose text holds passwords, API
+keys or tokens (search for `password`, `secret`, `api_key`, `BEGIN PRIVATE KEY`).
+
+If you find ANY: STOP. Tell the owner what you found and why it must not go public. Move it out of `site/`
+or add it to `site/.gitignore`, then scan again until clean.
+
+If `site/` already contains a `.git` folder (an old export or a clone):
+- Cloned from the owner's repository (Option A): its history is already on GitHub. If a secret appears
+  in the files or `git log -p`, tell the owner to treat it as exposed and replace it (new password or
+  key), because deleting it now does not un-publish it.
+- Anything else: ask the owner before deleting that `.git` folder, and start a clean one below.
+
+If anything was already committed locally and not pushed, rebuild it: delete `site/.git`, run the
+scan again, and make a new first commit.
+
+### Commit (only when the scan is clean)
+
+Road 1 Option B and road 2:
+
+```bash
+cd site
+git init -b main
+git add .
+git commit -m "Initial site"
+```
+
+Option A: the clone already has its history; commit only your own edits, if any.
 
 ### First publish (needs "yes, publish")
 
-Before the first push, list EVERY file that is staged (`git -C site ls-files`, after `git add .`) and
-look for things that must never be published: `.env` or `.env.*`, `*.sql`, `*.bak`, `*.old`, `*.zip`,
-`wp-config.php`, private keys (`*.pem`, `*.key`, `id_rsa*`), `.git` folders from the old site, and any file
-whose text holds passwords, API keys or tokens (search the staged files for `password`, `secret`,
-`api_key`, `BEGIN PRIVATE KEY`). If you find ANY: STOP. Unstage it (`git -C site rm --cached <file>`),
-tell the owner what you found and why it must not go public, and move it out of `site/` (or add it to
-`site/.gitignore`) before going on. Only when the list is clean, show the owner what will go live: the list
-of files in `site/` and a plain-words summary (pages, what they say, anything that links elsewhere). Then ask:
+Show the owner what will go live: the files changed or added (`git -C site status`, `git -C site ls-files`)
+and a plain-words summary (pages, what they say, anything that links elsewhere). Then ask:
 
-> "This is what will go on GitHub and then live on the internet. Say **yes, publish** and I'll push it.
+> "This is what will go on GitHub and then live on the internet. Say **yes, publish** and I'll go ahead.
 > If you'd like anything changed first, tell me."
 
-Wait. Only the words "yes, publish" (or a clear equivalent) count. A wish like "looks good, go ahead
-and fix the footer" is not a yes to publish. If there is no yes, do not push. On yes:
+Wait. Only "yes, publish" (or a clear equivalent) counts. A wish like "looks good, go ahead and fix the
+footer" is not a yes to publish. No yes, no push, and no Pages project.
+
+On yes, for new commits:
 
 ```bash
 python .claude/scripts/github_api.py push main --owner-approved
 ```
 
----
-
-## STEP 5: Connect GitHub to Cloudflare (One-Time OAuth)
-
-This is the one step that requires a browser click, it's a one-time GitHub authorization.
-
-> "Almost there. I need to do one thing that I can't automate, it's a one-click
-> GitHub authorization in your browser. Takes about 30 seconds.
->
-> Here's exactly what to do:
->
-> 1. Go to: https://dash.cloudflare.com
-> 2. In the left sidebar, under **Build**, click **Compute**, then **Workers & Pages**
-> 3. Click the blue **Create application** button (top right)
-> 4. A dialog appears, click **Connect GitHub** (under 'Ship something new')
-> 5. GitHub will ask where to install Cloudflare Workers and Pages:
->    - Select your personal GitHub account
->    - If your repo is inside a GitHub organization, also click that org name
-> 6. On the next screen, choose **Only select repositories** and pick just your site's repo
-> 7. Click **Install & Authorize**
-> 8. You'll be redirected back to Cloudflare showing a 'Select a repository' screen
->
-> **IMPORTANT: Stop here, do not select a repo or finish the wizard.**
-> Come back here and I'll create the project via API with the correct build settings.
->
-> Come back and tell me when you've completed the GitHub authorization."
-
-Wait for confirmation before continuing.
+Option A with nothing new to push: the yes is the approval to connect this repository to Cloudflare Pages in Step 6.
 
 ---
 
-## STEP 6: Deploy to Cloudflare Pages
+## STEP 6: Pages, checked on `*.pages.dev`
 
-### Detect build settings
+### Connect GitHub to Cloudflare (one-time, in the browser)
 
-Based on `SITE_FRAMEWORK`:
+> "One thing I can't automate, a one-time GitHub authorization:
+> 1. https://dash.cloudflare.com, then **Workers & Pages**
+> 2. **Create application**, then **Connect GitHub**
+> 3. Choose your GitHub account (and your organization if the repo is in one)
+> 4. Choose **Only select repositories** and pick just your site's repository, then **Install & Authorize**
+> 5. **Stop at the 'Select a repository' screen.** Don't finish the wizard. Tell me when you're there."
 
-| Framework | Build Command | Output Directory |
+### Build settings
+
+| Framework | Build command | Output directory |
 |-----------|--------------|-----------------|
 | `html`    | *(empty)*    | `/`             |
 | `nextjs`  | `npm run build` | `out`        |
 | `astro`   | `npm run build` | `dist`       |
 | `vite`    | `npm run build` | `dist`       |
 | `gatsby`  | `npm run build` | `public`     |
-| `other`   | Ask the user what command builds their site and what folder the output goes to |
+| `other`   | ask the owner what builds the site and where the output goes | |
 
-### Next.js: check the static export first
+A WordPress static export is `html`: the output directory is the folder that holds `index.html`.
 
-Only if `SITE_FRAMEWORK` is `nextjs`. Cloudflare Pages here serves static files, so before the Pages
-project is created, confirm in `next.config.js` / `next.config.mjs` / `next.config.ts` that it has
-`output: 'export'`, then run a local build (`npm install` then `npm run build` inside `site/`) and check
-that the `out/` folder now exists and holds `index.html`. If the setting is missing or the build does not
-produce `out/`, STOP and fix that with the owner (adding `output: 'export'` is a code change: show it and
-get a yes first). Do not create the Pages project until `out/` is produced.
+**Next.js:** before creating the project, confirm `output: 'export'` in `next.config.js`, `.mjs` or `.ts`,
+then run `npm install` and `npm run build` inside `site/` and check that `out/` exists and holds
+`index.html`. If not, STOP and fix it with the owner (adding `output: 'export'` is a code change: show
+it, get a yes). No Pages project until `out/` is produced.
 
-### Sanitize the project name
+### Create the project and deploy
 
-Cloudflare Pages project names: lowercase letters, numbers, hyphens only. No dots.
-Convert the domain to a valid project name: `apiconcierge.app` → `apiconcierge-app`
-
+Project names use lowercase letters, numbers and hyphens (`mybusiness.com` becomes `mybusiness-com`).
 Save as `CF_PAGES_PROJECT`.
 
-### Create the Pages project
-
 ```bash
-python .claude/scripts/cf_api.py pages-create \
-  [CF_PAGES_PROJECT] \
-  [GITHUB_OWNER] \
-  [GITHUB_REPO] \
-  main \
-  --build-command "[BUILD_COMMAND]" \
-  --output-dir "[OUTPUT_DIR]"
-```
-
-Then immediately trigger the first deployment, no dashboard clicks needed:
-
-```bash
+python .claude/scripts/cf_api.py pages-create [CF_PAGES_PROJECT] [GITHUB_OWNER] [GITHUB_REPO] main --build-command "[BUILD_COMMAND]" --output-dir "[OUTPUT_DIR]"
 python .claude/scripts/cf_api.py pages-deploy [CF_PAGES_PROJECT] main
 ```
 
-> "Cloudflare is building your site now. The first build takes 1-3 minutes.
->
-> You can watch it here:
-> https://dash.cloudflare.com → Workers & Pages → [CF_PAGES_PROJECT] → Deployments
->
-> Tell me when the deployment shows 'Success' (green checkmark)."
+> "Cloudflare is building your site. Watch it at https://dash.cloudflare.com → Workers & Pages →
+> [CF_PAGES_PROJECT] → Deployments, and tell me when it shows 'Success'."
 
-Wait for them to confirm the build succeeded before adding the custom domain.
+If the build fails, see Error Handling.
 
-### DNS pre-check
+### Check the site on `*.pages.dev`
 
-Before creating DNS records, check what is already at the root and `www`:
-
-```bash
-python .claude/scripts/cf_api.py dns-conflicts [DOMAIN]
-```
-
-**If records are returned (A, AAAA or CNAME at the root or www):** show them to the user and say:
-> "Your domain has these existing records at the root or www:
-> [list them]
->
-> This can happen if your domain was previously used for another site,
-> or if your registrar added default records.
->
-> To point your domain at Cloudflare Pages I will DELETE exactly these records and create new ones
-> pointing to your site. Nothing else is touched (email records and everything on other names stay).
->
-> If these belong to a live site you want to keep running, tell me now. Otherwise say 'yes'."
->
-> Wait for the owner's yes. No yes, no deletion.
-
-**If nothing is returned:** continue.
-
-### Add the custom domains and wire up DNS
-
-```bash
-python .claude/scripts/cf_api.py pages-domain [CF_PAGES_PROJECT] [DOMAIN]
-python .claude/scripts/cf_api.py pages-dns [DOMAIN] [CF_PAGES_PROJECT] --owner-approved
-```
-
-`pages-domain` registers BOTH `[DOMAIN]` and `www.[DOMAIN]` with Cloudflare Pages and then checks that
-both are registered (it prints each one's status, usually `pending` for a minute or two, then `active`).
-It exits 1 if either is missing: fix that before going on.
-`pages-dns` (only with the owner's yes, via `--owner-approved`) deletes exactly the A, AAAA and CNAME
-records at the root and `www` that you showed the owner, then creates proxied CNAMEs for both to the
-Pages project. MX, TXT and every other name are never touched. The SSL certificate is provisioned automatically.
-
-Verify: wait a minute or two, run `pages-domain` again (it is safe to repeat) until both show `active`,
-then open `https://[DOMAIN]` and `https://www.[DOMAIN]` (or ask the owner to) and confirm both load the site.
-
-> "Custom domain configured! [DOMAIN] and www.[DOMAIN] both point to your site.
-> SSL certificate will be active within 1-2 minutes."
+Open `https://[CF_PAGES_PROJECT].pages.dev` with the owner. Check every page, every link and every form.
+Do not touch the domain until the owner says the site is right.
 
 ---
 
-## STEP 7: Write Setup Record
+## STEP 7: The domain (no domain: skip to Step 8)
+
+Do these in order. Nothing here is live on the owner's domain until the nameservers point to Cloudflare.
+
+1. **Mail-check.** Needed whenever the nameservers have not moved yet (a domain already active on
+   Cloudflare skips this and goes to item 2).
+
+   ```bash
+   python .claude/scripts/cf_api.py mail-check [DOMAIN]
+   ```
+
+   Exit 0: go on. Exit 1: STOP. Show the owner the table and the missing records, add them in
+   Cloudflare (DNS only, not proxied), run it again until it passes. Tell the owner the limit it prints:
+   DKIM selectors can't be listed from outside, so they should also compare with their mail provider's
+   setup page. Moving mailboxes is not this kit's job: see GUIDE.md chapter 6b.
+
+2. **DNS conflicts, on the owner's yes.**
+
+   ```bash
+   python .claude/scripts/cf_api.py dns-conflicts [DOMAIN]
+   ```
+
+   If records come back (A, AAAA or CNAME at the root or `www`), show them:
+   > "These records are at your root or www now: [list]. To point the domain at your new site I will DELETE
+   > exactly these and create new ones. Nothing else is touched (email records and other names stay).
+   > If they belong to a live site you want to keep running, tell me now. Otherwise say 'yes'."
+
+   No yes, no deletion. If nothing comes back, continue.
+
+3. **Register both names and wire up DNS.**
+
+   ```bash
+   python .claude/scripts/cf_api.py pages-domain [CF_PAGES_PROJECT] [DOMAIN]
+   python .claude/scripts/cf_api.py pages-dns [DOMAIN] [CF_PAGES_PROJECT] --owner-approved
+   ```
+
+   `pages-domain` registers `[DOMAIN]` and `www.[DOMAIN]` and prints each one's status. Re-run it
+   (it is safe to repeat) and watch the status in Cloudflare; it exits 1 if a name is missing. `pages-dns`
+   removes only the records the owner approved and creates proxied CNAMEs for both names.
+
+4. **Move the nameservers** (only if the domain was not already on Cloudflare), after the mail-check passed:
+
+   > "Mail records are safe. Now set BOTH nameservers at your registrar to the two Cloudflare shows you.
+   > Which registrar is it? I'll give you step-by-step instructions."
+
+   If you use `namecheap_to_cf.py` or `spaceship_to_cf.py`, they need `--owner-approved`, run
+   `mail-check` themselves right before the change, and stop (exit 1) if it fails. One domain at a time.
+   Cloudflare emails the owner when the domain is active; watch the status in the dashboard and wait for it.
+
+5. **Verify both names.** Run `pages-domain` again until both names are active, then open
+   `https://[DOMAIN]` and `https://www.[DOMAIN]` and confirm both load the site. Certificates and DNS take
+   as long as they take: look at the status, don't guess.
+
+---
+
+## STEP 8: Email, then the old service
+
+Email test (if the domain has email): the owner sends a message to their address and has a friend send
+one too. Both must arrive, and replies must work. If the mailbox lived with the old host or builder and
+needs a new home, GUIDE.md chapter 6b has the side note (Zoho Mail's free plan is one suggestion; read
+Zoho's own setup pages and help step by step; set up the new mailbox and copy the old mail BEFORE the
+old service is cancelled).
+
+Road 1 only: **only now** talk about cancelling the old builder or host, and ask for its renewal date.
+Cancel before it renews, but only after the site, both names and email are confirmed. Road 2 has nothing to cancel.
+
+---
+
+## STEP 9: Write the setup record
 
 Create `.agent/free-setup-progress.md`:
 
@@ -456,6 +407,7 @@ Create `.agent/free-setup-progress.md`:
 
 ## Site
 - Business: [BUSINESS_NAME]
+- Road: [move / fresh]
 - Domain: [DOMAIN]
 - Framework: [SITE_FRAMEWORK]
 
@@ -463,6 +415,7 @@ Create `.agent/free-setup-progress.md`:
 - Owner: [GITHUB_OWNER]
 - Repo: [GITHUB_REPO]
 - Visibility: [public/private]
+- Token expires: [date, 90 days from creation]
 
 ## Cloudflare
 - Pages project: [CF_PAGES_PROJECT]
@@ -471,60 +424,44 @@ Create `.agent/free-setup-progress.md`:
 
 ## Steps Completed
 - [x] Step 1, Interview
-- [x] Step 2, Domain on Cloudflare
-- [x] Step 3, GitHub repo
-- [x] Step 4, Site files
-- [x] Step 5, GitHub -> Cloudflare OAuth
-- [x] Step 6, Deployed to Pages
-- [x] Step 7, Setup record written
+- [x] Step 2, Cloudflare and token
+- [x] Step 3, GitHub repo and token
+- [x] Step 4, Built in site/
+- [x] Step 5, Secret scan and first publish
+- [x] Step 6, Pages checked on pages.dev
+- [x] Step 7, Domain
+- [x] Step 8, Email checked
 ```
+
+Also fill the memory templates (`.claude/memory-templates/SOUL-free.md`, `USER.md`) into `My-Vault/Memory/`
+(no tokens in them). Remind the owner that the GitHub token expires on the date above and needs renewing.
 
 ---
 
-## STEP 8: Done
+## STEP 10: Done
 
-> "Your site is live!
+> "Your site is set up: https://[DOMAIN] (or https://[CF_PAGES_PROJECT].pages.dev).
+> - Hosted on Cloudflare Pages; the GitHub repo is https://github.com/[GITHUB_OWNER]/[GITHUB_REPO]
+> - Every push to `main` updates the site, and I only push after your "yes, publish"
 >
-> **[BUSINESS_NAME] is now live at https://[DOMAIN]**
+> To change something, tell me in plain words. I'll show you what changes and wait for your yes.
 >
-> Here's what's set up:
-> - Static website deployed on Cloudflare Pages (free)
-> - GitHub repo: https://github.com/[GITHUB_OWNER]/[GITHUB_REPO]
-> - Auto-deploys: every time I push to the main branch (only after your "yes, publish"), your site updates
->
-> ---
->
-> **How to update your site:**
-> Tell me what to change. I'll show you what changes, and when you say "yes, publish" I push it
-> and your site rebuilds and redeploys automatically.
->
-> ---
->
-> **Want more?**
 > Need your own server or a back office? That is SiteCrew Paid; the tested solutions are in the Practical AI Community.
 >
-> ---
->
-> That's it, you're live. What would you like to do next?"
+> What would you like to do next?"
 
 ---
 
 ## Error Handling Notes
 
-**CF Pages create fails with "could not connect to GitHub":**
-The OAuth step in Step 5 wasn't completed for the right account/org. Walk them back through Step 5, making sure they authorized the correct GitHub account and any orgs where the repo lives.
+**Pages create fails with "could not connect to GitHub":** the authorization in Step 6 wasn't completed for
+the right account or organization. Walk them through it again.
 
-**CF Pages create fails with "project name already exists":**
-Try appending `-site` or `-web` to the project name (e.g., `apiconcierge-app-site`).
+**Pages create fails with "project name already exists":** append `-site` or `-web` to the project name.
 
-**Build fails in Cloudflare:**
-> "The build failed. Let's check what went wrong:
-> 1. Go to Cloudflare → Workers & Pages → [project] → Deployments → click the failed deploy
-> 2. Click 'View build log'
-> 3. Paste the last 20 lines of the log here"
->
-> Diagnose and fix based on the error.
+**Build fails in Cloudflare:** have the owner open Workers & Pages → the project → Deployments → the failed
+deploy → 'View build log', and paste the last lines of the log here (a build log holds no tokens). Diagnose and fix.
 
-**DNS not resolving after custom domain added:**
-> "DNS changes can take a few minutes to propagate. Wait 5 minutes and try again.
-> If it still doesn't work after 10 minutes, let's check the DNS records in Cloudflare."
+**The domain doesn't load after setup:** look at the status of the domain and its certificate in the
+Cloudflare dashboard and run `pages-domain` again. If a name is not active, check the DNS records
+with `cf_api.py records [DOMAIN]` instead of waiting blindly.

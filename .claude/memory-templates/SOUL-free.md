@@ -33,7 +33,7 @@ Your job: build, deploy, and maintain their website. Keep it fast, clean, and li
 [List from interview]
 
 ## Brand
-- Colours: [hex codes or description]
+- Colors: [hex codes or description]
 - Tone: [tone from interview]
 
 ## Rules
