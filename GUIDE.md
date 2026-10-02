@@ -124,7 +124,7 @@ You look at it on your own computer first. Ask for changes until you like it. No
 GitHub is where your site's files live, with a history of every change.
 
 - You create one empty repository for the site (one click on GitHub).
-- The agent shows you how to make a **fine-grained token** for that one repository only, able to change its files and nothing else, with an expiry date. That is the least access that works: the token can write to that one repository only. (GitHub fine-grained tokens can still read public repositories, which anyone can read anyway.)
+- The agent shows you how to make a **fine-grained token** for that one repository only, able to change its files and nothing else, with an expiry date. That is the least access that works: the token can write to that one repository only. (GitHub fine-grained tokens can still read public repositories, which anyone can read anyway.) If the repository belongs to an organization, you pick the organization as the token's owner, and the organization may have to approve the token before it works.
 - You paste the token into a settings file on your own computer, not into the chat.
 - The agent publishes to GitHub **only when you approve.** Before every publish it shows you what changed and waits for your "yes, publish".
 

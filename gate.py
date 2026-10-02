@@ -196,6 +196,24 @@ def check_selftest() -> None:
     got = (cf_api.root_domain("willow.com"), cf_api.root_domain("www.willow.com"))
     report(got == ("willow.com", "willow.com"), f"www. handling: {got[0]}, {got[1]}")
 
+    import tempfile
+    head = 'name = "shop-com"\npages_build_output_dir = "./dist"\n'
+    d1 = '[[d1_databases]]\nbinding = "DB"\ndatabase_id = "local-placeholder-replace-before-deploy"\n'
+    wcases = [
+        ("no Wrangler file: silent", None, 0, False),
+        ("file without pages_build_output_dir: silent", 'name = "x"\n', 0, False),
+        ("output dir set: notes, goes on", head, 1, False),
+        ("placeholder D1 id: stops", head + d1, 2, True),
+        ("commented-out placeholder: goes on", head + "".join("# " + l + "\n" for l in d1.splitlines()), 1, False),
+    ]
+    for label, body, want_lines, want_stop in wcases:
+        with tempfile.TemporaryDirectory() as tmp:
+            if body is not None:
+                Path(tmp, "wrangler.toml").write_text(body, encoding="utf-8")
+            lines, stop = cf_api.wrangler_notes(Path(tmp), "shop-com")
+        report(len(lines) == want_lines and stop == want_stop,
+               f"wrangler_notes: {label} ({len(lines)} lines, stop={stop})")
+
 
 # 7. Anything that changes the outside world refuses without --owner-approved, before any network call
 def check_refusals() -> None:

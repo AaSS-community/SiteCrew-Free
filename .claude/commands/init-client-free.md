@@ -147,10 +147,12 @@ Parse the address into `GITHUB_OWNER` and `GITHUB_REPO`. Ask whether the reposit
 >
 > 1. Go to https://github.com/settings/personal-access-tokens/new
 > 2. Token name 'SiteCrew'. Expiration: **90 days**
-> 3. Repository access: **Only select repositories**, then choose your one repository
-> 4. Repository permissions: **Contents → Read and write** (Metadata: Read is added automatically). Leave the rest at 'No access'
-> 5. 'Generate token' and copy it
-> 6. In `.claude/scripts/.env`, paste it after `GITHUB_TOKEN=` and write `GITHUB_REPO=your-username/mybusiness-site` on the next line. Save.
+> 3. Resource owner: **the account that owns the repository** (your username, or the organization if the
+>    repository is in one; otherwise it won't appear in the next list)
+> 4. Repository access: **Only select repositories**, then choose your one repository
+> 5. Repository permissions: **Contents → Read and write** (Metadata: Read is added automatically). Leave the rest at 'No access'
+> 6. 'Generate token' and copy it
+> 7. In `.claude/scripts/.env`, paste it after `GITHUB_TOKEN=` and write `GITHUB_REPO=your-username/mybusiness-site` on the next line. Save.
 >
 > Tell me when it's saved. (Don't tell me the token.)"
 
@@ -165,6 +167,9 @@ GitHub's token settings, the three things the script prints: only this repositor
 Contents is Read and write, and the token has an expiry date. Be plain about what this means: the
 token can only WRITE to that one repository. Fine-grained tokens can still read public repositories.
 Wait for the owner's confirmation. If `check` fails, make a new token for the one repository.
+For a repository in an organization: the organization may have to approve the token first, and until
+then it can only read public repositories. An organization owner's own token is approved automatically
+(https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
 
 ---
 
@@ -203,6 +208,9 @@ Build the new design from the content there.
 
 ### Road 2 (fresh): examples or a template first
 
+**The new site is already built** (by the owner or another tool): bring it into `site/` the same way as
+Road 1, Option A (a repository) or Option B (files on their computer), then go to Step 5.
+
 > "First, show me what you like. Any of these works: links to sites you admire; screenshots, a sketch or
 > a mock-up; the overall idea in plain words; or a template, bought or free.
 >
@@ -226,7 +234,8 @@ Do this on the files in `site/` BEFORE `git add` or any commit. A secret that ge
 the history, and the first push would publish that history.
 
 List every file (`find site -type f`, skipping `node_modules`) and show the owner the list. Look for
-things that must never be published: `.env` or `.env.*`, `*.sql`, `*.bak`, `*.old`, `*.zip`,
+things that must never be published: `.env` or `.env.*` (an `.env.example` is fine when it holds only
+names and empty or placeholder values: open it and check), `*.sql`, `*.bak`, `*.old`, `*.zip`,
 `wp-config.php`, private keys (`*.pem`, `*.key`, `id_rsa*`), and any file whose text holds passwords, API
 keys or tokens (search for `password`, `secret`, `api_key`, `BEGIN PRIVATE KEY`).
 
@@ -304,6 +313,14 @@ A WordPress static export is `html`: the output directory is the folder that hol
 then run `npm install` and `npm run build` inside `site/` and check that `out/` exists and holds
 `index.html`. If not, STOP and fix it with the owner (adding `output: 'export'` is a code change: show
 it, get a yes). No Pages project until `out/` is produced.
+
+### A Wrangler file in `site/`
+
+If `site/` holds `wrangler.toml`, `wrangler.json` or `wrangler.jsonc` with `pages_build_output_dir`, Pages
+takes the project's settings from that file, not from the dashboard
+(https://developers.cloudflare.com/pages/functions/wrangler-configuration/). Read it with the owner before
+creating the project: its `name` should be `CF_PAGES_PROJECT`, and every binding in it (a database,
+storage) must exist, or the deploy fails. `pages-create` prints what it finds and stops on a placeholder id.
 
 ### Create the project and deploy
 

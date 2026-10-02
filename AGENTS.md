@@ -19,7 +19,7 @@ Need your own server or a back office? That is SiteCrew Paid; the tested solutio
 
 Two roads, one kit: **move** an existing site, or **start fresh** (a new site, or one more). Ask which. Then offer a short list, not one path: plain HTML, WordPress (on Pages that means a static export, for example the Simply Static plugin; a live WordPress is SiteCrew Paid), Next.js (`output: 'export'` only), Astro, others. Give each one's trade-offs (easy to change, cost to keep, what it can do), say which you would pick and why. The owner chooses.
 
-**Starting fresh:** first ask for examples: links to sites they like, screenshots, a sketch or mock-up, or the idea in plain words. Or a template, bought or free. Take ideas from examples; never copy another site's code, text or images. For a template, read its license with the owner BEFORE building (attribution? client work? one site only?); `GUIDE.md` chapter 1b has the common ones.
+**Starting fresh:** first ask for examples: links to sites they like, screenshots, a sketch or mock-up, or the idea in plain words. Or a template, bought or free. Take ideas from examples; never copy another site's code, text or images. For a template, read its license with the owner BEFORE building (attribution? client work? one site only?); `GUIDE.md` chapter 1b has the common ones. If the new site is already built, bring it into `site/` like a moved site (clone or copy), then the secret scan.
 
 **One more site:** the kit holds one site per folder (`site/`). A second site is a second copy of the kit in its own folder, with its own repository and token.
 

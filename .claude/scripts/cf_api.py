@@ -37,6 +37,7 @@ Usage:
 from __future__ import annotations
 
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Optional
@@ -485,6 +486,40 @@ class CloudflareAPI:
             raise
 
 
+SITE_DIR = Path(__file__).resolve().parents[2] / "site"
+_PLACEHOLDER = re.compile(r'"?(?:database_id|id|bucket_name|namespace_id)"?\s*[=:]\s*"([^"]*(?:placeholder|replace|<|xxx|todo)[^"]*)"', re.I)
+
+
+def wrangler_notes(site: Path, project_name: str) -> tuple[list[str], bool]:
+    """
+    A Wrangler file in the site that sets pages_build_output_dir becomes the Pages project's
+    source of truth (name, output folder, bindings), overriding the flags given here.
+    Returns (lines to print, stop); stop is True when a live binding holds a placeholder id,
+    because Cloudflare would refuse that deploy.
+    """
+    for fname in ("wrangler.toml", "wrangler.json", "wrangler.jsonc"):
+        path = site / fname
+        if path.exists():
+            break
+    else:
+        return [], False
+    live = "\n".join(line for line in path.read_text(encoding="utf-8", errors="replace").splitlines()
+                     if not line.lstrip().startswith(("#", "//")))
+    if "pages_build_output_dir" not in live:
+        return [], False
+    lines = [f"NOTE site/{fname} sets pages_build_output_dir: Cloudflare Pages takes this project's "
+             "settings (name, output folder, bindings) from that file, not from these flags. "
+             "https://developers.cloudflare.com/pages/functions/wrangler-configuration/"]
+    m = re.search(r'^\s*"?name"?\s*[=:]\s*"([^"]+)"', live, re.M)
+    if m and m.group(1) != project_name:
+        lines.append(f'NOTE its name is "{m.group(1)}" but the project is "{project_name}": make them match.')
+    bad = _PLACEHOLDER.findall(live)
+    if bad:
+        lines.append(f"STOP its bindings hold placeholder ids ({', '.join(bad)}): the deploy would fail. "
+                     "Remove those bindings for now (show the owner, get a yes) or create them first.")
+    return lines, bool(bad)
+
+
 # ---------------------------------------------------------------------------
 # Module-level helper
 # ---------------------------------------------------------------------------
@@ -778,6 +813,11 @@ def _cli() -> None:
                     i += 1
                 else:
                     i += 1
+            notes, stop = wrangler_notes(SITE_DIR, project_name)
+            for line in notes:
+                print(line)
+            if stop:
+                sys.exit(1)
             result = cf.create_pages_project(
                 project_name, github_owner, github_repo, branch,
                 build_command=build_command, destination_dir=output_dir,
