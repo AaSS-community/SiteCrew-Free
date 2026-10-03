@@ -129,7 +129,7 @@ def check_readme() -> None:
     why = "" if first == README_TITLE else f"\n      found: {first!r}"
     report(first == README_TITLE, f"README.md first line is exactly '{README_TITLE}'" + why)
     missing = [m for m in (README_CREDIT, README_CREDIT_HEADING) if m not in text]
-    why = "" if not missing else ("\n      the credit to SiteCrew.ai must stay (Al, S012); missing: "
+    why = "" if not missing else ("\n      the credit to SiteCrew.ai must stay (Al, S012), and the sitecrew.ai website quotes it: change the site too; missing: "
                                   + ", ".join(repr(m) for m in missing))
     report(not missing, "README.md credits SiteCrew.ai" + why)
 
