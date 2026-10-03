@@ -6,7 +6,7 @@ A free kit that puts your website on Cloudflare Pages, with an AI coding agent t
 
 ## What it costs, honestly
 
-All prices are in USD. Use any currency converter for your own currency. Checked 2026-10-01; prices change, so re-check.
+All prices are in USD. Use any currency converter for your own currency. Checked 2026-10-03; prices change, so re-check.
 
 - Hosting: **$0**, on Cloudflare's free tier.
 - Your domain: currently **$10.46 a year** to register and to renew a .com at Cloudflare ([price table](https://pricing.registrar.cloudflare.com/)). Prices can change. This is never "free".
@@ -42,5 +42,9 @@ This kit is an example: take it and build any solution you want with it. The tes
 ## Why it exists
 
 On Nov 29, 2025, Alex G.'s web host billed him $710.82 for three more years of shared hosting. He decided to own instead of rent.
+
+## Where it comes from
+
+SiteCrew Free is the first free kit from AaSS. AaSS (Agent as Software Solution) is a software ownership model where an AI agent builds, runs and maintains software you own, instead of software you rent. More: [aass.co/what-is-aass](https://aass.co/what-is-aass)
 
 MIT license, Strategic Viral Services Inc.

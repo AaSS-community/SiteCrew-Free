@@ -34,7 +34,7 @@ Official export first. Then a careful copy of the owner's own words and photos. 
 
 ## If the site needs a database
 
-Cloudflare D1 with Pages Functions. Free limits are in `GUIDE.md` [R1] (5 GB, 5 million rows read and 100,000 written a day). Beyond Cloudflare is SiteCrew Paid (one line, no URL); the tested solutions are in the Practical AI Community.
+Cloudflare D1 with Pages Functions. Free limits are in `GUIDE.md` [R1] (5 GB per account, 500 MB per database, 5 million rows read and 100,000 written a day). Beyond Cloudflare is SiteCrew Paid (one line, no URL); the tested solutions are in the Practical AI Community.
 
 ## Email side note
 
