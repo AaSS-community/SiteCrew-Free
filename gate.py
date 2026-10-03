@@ -196,6 +196,11 @@ def check_selftest() -> None:
     got = (cf_api.root_domain("willow.com"), cf_api.root_domain("www.willow.com"))
     report(got == ("willow.com", "willow.com"), f"www. handling: {got[0]}, {got[1]}")
 
+    hosts = (cf_api.pages_host({"name": "shop", "subdomain": "shop.pages.dev"}),
+             cf_api.pages_host({"name": "shop"}))
+    report(hosts == ("shop.pages.dev", "shop.pages.dev"),
+           f"pages_host: never doubles .pages.dev ({hosts[0]}, {hosts[1]})")
+
     import tempfile
     head = 'name = "shop-com"\npages_build_output_dir = "./dist"\n'
     d1 = '[[d1_databases]]\nbinding = "DB"\ndatabase_id = "local-placeholder-replace-before-deploy"\n'

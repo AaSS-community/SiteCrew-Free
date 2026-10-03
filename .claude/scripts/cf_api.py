@@ -487,6 +487,12 @@ class CloudflareAPI:
 
 
 SITE_DIR = Path(__file__).resolve().parents[2] / "site"
+
+
+def pages_host(project: dict) -> str:
+    """The project's *.pages.dev host. The API's `subdomain` already ends in .pages.dev."""
+    sub = project.get("subdomain") or project["name"]
+    return sub if sub.endswith(".pages.dev") else f"{sub}.pages.dev"
 _PLACEHOLDER = re.compile(r'"?(?:database_id|id|bucket_name|namespace_id)"?\s*[=:]\s*"([^"]*(?:placeholder|replace|<|xxx|todo)[^"]*)"', re.I)
 
 
@@ -786,7 +792,7 @@ def _cli() -> None:
             projects = cf.list_pages_projects()
             if projects:
                 for p in projects:
-                    print(f"  {p['name']} - {p.get('subdomain', '?')}.pages.dev")
+                    print(f"  {p['name']} - {pages_host(p)}")
             else:
                 print("No Pages projects found.")
 
@@ -823,7 +829,7 @@ def _cli() -> None:
                 build_command=build_command, destination_dir=output_dir,
             )
             print(f"OK Pages project created: {result['name']}")
-            print(f"  URL: https://{result.get('subdomain', result['name'])}.pages.dev")
+            print(f"  URL: https://{pages_host(result)}")
             if build_command:
                 print(f"  Build command: {build_command}")
             if output_dir and output_dir != "/":

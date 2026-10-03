@@ -56,12 +56,13 @@ Ask **one at a time**, waiting for each answer.
 
 1. "Do you have a website now that you want to move (road 1), or do you want a new site, or one more site (road 2)?"
    Save `ROAD` as `move` or `fresh`. (One site per folder: a second site means a second copy of this kit.)
+   A site the owner already built that isn't online yet: its files go in `site/`, either road works.
 2. "What's the name of your business or project?"
 3. "What do you do, and who is it for? (2-3 sentences)"
 4. "What's the main goal of the website? (calls or emails, bookings, showing your work, selling something, other)"
 5. "What's the tone of your brand? (for example professional, friendly, bold, minimal)"
 6. "Do you already have a domain name? (like mybusiness.com)"
-7. Road 1 only: "Where does the site live today, and where is the domain registered?" Remind them:
+7. Road 1 only: "Where does the site live today (if it's online), and where is the domain registered?" Remind them:
    a domain that came with a builder may need an unlock and an authorization code to move
    (GUIDE.md chapter 1, Warning 1), and transfers can have a waiting period.
 
@@ -150,7 +151,8 @@ Parse the address into `GITHUB_OWNER` and `GITHUB_REPO`. Ask whether the reposit
 > 3. Resource owner: **the account that owns the repository** (your username, or the organization if the
 >    repository is in one; otherwise it won't appear in the next list)
 > 4. Repository access: **Only select repositories**, then choose your one repository
-> 5. Repository permissions: **Contents → Read and write** (Metadata: Read is added automatically). Leave the rest at 'No access'
+> 5. Permissions: click **Add permissions**, choose **Contents**, and set it to **Access: Read and write**
+>    (Metadata, read-only, is added and marked Required). Add nothing else
 > 6. 'Generate token' and copy it
 > 7. In `.claude/scripts/.env`, paste it after `GITHUB_TOKEN=` and write `GITHUB_REPO=your-username/mybusiness-site` on the next line. Save.
 >
@@ -290,11 +292,15 @@ Option A with nothing new to push: the yes is the approval to connect this repos
 ### Connect GitHub to Cloudflare (one-time, in the browser)
 
 > "One thing I can't automate, a one-time GitHub authorization:
-> 1. https://dash.cloudflare.com, then **Workers & Pages**
-> 2. **Create application**, then **Connect GitHub**
-> 3. Choose your GitHub account (and your organization if the repo is in one)
-> 4. Choose **Only select repositories** and pick just your site's repository, then **Install & Authorize**
-> 5. **Stop at the 'Select a repository' screen.** Don't finish the wizard. Tell me when you're there."
+> 1. https://dash.cloudflare.com, then **Workers & Pages** (in the left menu)
+> 2. **Create application**, then **Continue with GitHub**
+> 3. On GitHub, choose your account (or your organization if the repo is in one), choose
+>    **Only select repositories**, pick just your site's repository, then **Install & Authorize**
+> 4. Back in Cloudflare you see **Select a repository** with your repository and a **Next** button.
+>    **Stop there: don't press Next or Deploy.** That wizard makes a different kind of project; I create
+>    the Pages project for you. Tell me when you're there."
+>
+> (The dashboard changes from time to time. If your screen looks different, send me a screenshot.)
 
 ### Build settings
 
