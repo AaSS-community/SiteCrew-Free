@@ -1,4 +1,4 @@
-# SiteCrew Free
+# SiteCrew AaSS Kit
 # Secrets: tokens live here, never in git and never in the chat
 .env
 .env.*

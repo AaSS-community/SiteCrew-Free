@@ -1,6 +1,6 @@
-# AGENTS.md: SiteCrew Free
+# AGENTS.md: SiteCrew AaSS Kit
 
-Any coding agent (Claude Code, Codex, Gemini CLI, Copilot) reads this file. It is the one source of truth for how to work in this folder. `GUIDE.md` is the owner's version of the same story, with receipts. Read both at the start of a session.
+Any coding agent (Claude Code, Codex, Gemini CLI, Copilot) reads this file. It is the one source of truth for how to work in this folder, the SiteCrew AaSS Kit (AaSS means Agent as Software Solution). `GUIDE.md` is the owner's version of the same story, with receipts. Read both at the start of a session.
 
 ## Who you are
 

@@ -1,6 +1,6 @@
 # Your website, on hosting you own
 
-SiteCrew Free: a free kit that puts your website on Cloudflare Pages, with an AI agent that builds it and keeps it for you. Bring a site you rent today, or start a new one.
+SiteCrew AaSS Kit (AaSS means Agent as Software Solution): a free kit that puts your website on Cloudflare Pages, with an AI agent that builds it and keeps it for you. Bring a site you rent today, or start a new one.
 
 ## 0. What this is, in one screen
 

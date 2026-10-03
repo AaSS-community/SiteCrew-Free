@@ -1,5 +1,5 @@
 """
-SiteCrew Free gate: one command, no network, standard library only.
+SiteCrew AaSS Kit gate: one command, no network, standard library only.
 
   python gate.py        exits 0 on GATE PASS, 1 on GATE FAIL (n)
 """
@@ -23,7 +23,26 @@ SKIP_DIRS = {".git", "site", "my-old-site", "My-Vault", "__pycache__", ".venv", 
 
 # Words that must not ship. gate.py is excluded from this scan (it names them).
 BANNED = ["admin:repo_hook", "No expiration", "paramiko", "ssh_binary",
-          "heartbeat", "github.com/svsinc", "sitecrew.ai", "[DOMAIN_SLUG]"]
+          "heartbeat", "github.com/svsinc", "[DOMAIN_SLUG]"]
+
+# sitecrew.ai is banned in every shipped .md/.py except the root README.md,
+# where it is the deliberate credit (the credit, Al S012).
+CREDIT_NAME = "sitecrew.ai"
+# The old kit name and repo URL must not come back, and sitecrew.ai is named, never
+# linked (it serves no page yet, checked 2026-10-03). Matched everywhere, README.md included.
+_SITE = r"sitecrew\.ai(?![\w-])(?!\.[a-z])"  # not sitecrew.ai.example.com
+BANNED_EVERYWHERE_RE = [
+    ("old kit name", re.compile(r"\bsitecrew[ -]free\b", re.I)),
+    ("link to sitecrew.ai", re.compile("|".join([
+        r"//(?:[\w-]+\.)*" + _SITE,                      # https://, http://, // and any subdomain
+        r"\b[\w-]+\." + _SITE,                           # www.sitecrew.ai, docs.sitecrew.ai
+        r"\]\(\s*(?:[\w-]+\.)*" + _SITE,                 # markdown target ](sitecrew.ai...)
+        r"\bsitecrew\.ai/"]), re.I)),                    # sitecrew.ai/path
+]
+AASS_EXPANSION = "Agent as Software Solution"
+README_TITLE = "# SiteCrew AaSS Kit"
+README_CREDIT = "This kit is possible because of SiteCrew.ai"
+README_CREDIT_HEADING = "## Where it comes from"
 
 BANNED_MD_ONLY = ["\u2014"]  # the em-dash character
 # Claims the kit must not make (house copy laws); matched in .md files, case-insensitive.
@@ -90,12 +109,60 @@ def check_text() -> None:
             continue
         text = p.read_text(encoding="utf-8", errors="replace").lower()
         hits += [f"{rel(p)}: {w}" for w in BANNED if w.lower() in text]
+        hits += [f"{rel(p)}: {label}: {m.group(0)}" for label, rx in BANNED_EVERYWHERE_RE
+                 for m in rx.finditer(text)]
+        if CREDIT_NAME in text and not (p.parent == ROOT and p.name == "README.md"):
+            hits.append(f"{rel(p)}: {CREDIT_NAME} (allowed only in the root README.md credit)")
         if p.suffix == ".md":
             hits += [f"{rel(p)}: em-dash character" for w in BANNED_MD_ONLY if w in text]
             hits += [f"{rel(p)}: {w}" for w in BANNED_MD_PHRASES if w.lower() in text]
             if p.parent == ROOT and p.name in PUBLIC_DOCS:
                 hits += [f"{rel(p)}: {w}" for w in PUBLIC_BANNED if w in text]
     report(not hits, "no banned text in .md/.py" + "".join(f"\n      {h}" for h in hits))
+
+
+# 3b. The root README keeps its title and the credit to SiteCrew.ai
+def check_readme() -> None:
+    path = ROOT / "README.md"
+    text = path.read_text(encoding="utf-8", errors="replace") if path.exists() else ""
+    first = text.splitlines()[0].strip() if text.strip() else ""
+    why = "" if first == README_TITLE else f"\n      found: {first!r}"
+    report(first == README_TITLE, f"README.md first line is exactly '{README_TITLE}'" + why)
+    missing = [m for m in (README_CREDIT, README_CREDIT_HEADING) if m not in text]
+    why = "" if not missing else ("\n      the credit to SiteCrew.ai must stay (Al, S012); missing: "
+                                  + ", ".join(repr(m) for m in missing))
+    report(not missing, "README.md credits SiteCrew.ai" + why)
+
+
+# 3c. AaSS is expanded at first use in every shipped .md: "Agent as Software Solution"
+# in the same or the next unit (a unit is a heading line, or a sentence ending . ? ! or a line).
+# A heading is a name, not a use, so the first AaSS in running text is the one that counts.
+def aass_units(text: str):
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith("#"):
+            yield line, True
+        else:
+            for sentence in re.split(r"(?<=[.?!])\s+", line):
+                yield sentence, False
+
+
+def check_aass() -> None:
+    bad = []
+    for p in shipped(".md"):
+        pairs = list(aass_units(p.read_text(encoding="utf-8", errors="replace")))
+        units = [u for u, _ in pairs]
+        for i, (unit, heading) in enumerate(pairs):
+            if heading or not re.search(r"\bAaSS\b", unit):
+                continue
+            if not any(AASS_EXPANSION in u for u in units[i:i + 2]):
+                bad.append(f"{rel(p)}: first AaSS has no '{AASS_EXPANSION}' next to it: "
+                           f"{unit[:80]!r}")
+            break
+    report(not bad, f"AaSS is expanded ('{AASS_EXPANSION}') at first use in every .md"
+           + "".join(f"\n      {b}" for b in bad))
 
 
 # 4. Scripts named in .md exist, and so do the commands named for them
@@ -283,6 +350,8 @@ def check_env() -> None:
 check_compile()
 check_usage()
 check_text()
+check_readme()
+check_aass()
 check_references()
 check_env()
 check_selftest()

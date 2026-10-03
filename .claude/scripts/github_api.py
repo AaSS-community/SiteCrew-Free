@@ -1,5 +1,5 @@
 """
-GitHub helper for SiteCrew Free (least access).
+GitHub helper for SiteCrew AaSS Kit (least access).
 
 The owner creates ONE empty repository and ONE fine-grained token for that
 repository only (Contents: Read and write, expiry 90 days). Nothing wider.

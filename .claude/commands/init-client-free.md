@@ -2,7 +2,7 @@
 description: Free SiteCrew setup: a website on Cloudflare Pages through GitHub, for a site you move or a new site. Guides the owner step by step.
 ---
 
-# /init-client-free: SiteCrew Free Setup
+# /init-client-free: SiteCrew AaSS Kit Setup
 
 Guides the owner from a fresh install to a live website on Cloudflare Pages. It follows AGENTS.md
 (the four safety rules) and GUIDE.md (the owner's version, with receipts). Read both first.
@@ -37,7 +37,7 @@ from Step [N]: [step name]", and continue from there.
 
 ## STEP 0: Welcome
 
-> "Welcome to SiteCrew Free. I'll walk you through getting your website onto Cloudflare Pages,
+> "Welcome to the SiteCrew AaSS Kit (AaSS means Agent as Software Solution). I'll walk you through getting your website onto Cloudflare Pages,
 > one step at a time. Hosting there has a free tier. Your domain is a yearly cost, and the AI
 > plan I run on may cost something too; GUIDE.md chapter 0 has the numbers and where they come from.
 >
@@ -423,7 +423,7 @@ Cancel before it renews, but only after the site, both names and email are confi
 Create `.agent/free-setup-progress.md`:
 
 ```markdown
-# SiteCrew Free Setup: [BUSINESS_NAME]
+# SiteCrew AaSS Kit Setup: [BUSINESS_NAME]
 
 ## Status: COMPLETE
 ## Date: [today's date]
