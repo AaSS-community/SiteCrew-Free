@@ -45,6 +45,20 @@ README_CREDIT = "This kit is possible because of SiteCrew.ai"
 README_CREDIT_HEADING = "## Where it comes from"
 
 BANNED_MD_ONLY = ["\u2014"]  # the em-dash character
+# The upkeep word is "maintain" (Al, 2026-10-04): the agent builds and maintains;
+# "keep" means holding on (keep renting, yours to keep). These old forms must not come back.
+OLD_KEEP_RE = re.compile("|".join([
+    r"\b(?:builds?|built|publish(?:es|ed)?|puts?)\b[^.\n]{0,60}?\b(?:then |and )(?:keeps|kept)\b"
+    r"(?= (?:it|(?:a|the|your) (?:site|website)|software)\b)",
+    r"\bkept by (?:your |an? |the )?(?:AI (?:coding )?|coding )?agent\b",
+    r"\b(?:keep|keeps|kept|keeping)\s+(?:it|(?:a|the|your) (?:site|website)|software)\s+(?:working|right)\b",
+    r"\b(?:the agent|it|then you) keeps?\b (?:it\b|the site)",
+    r"\bcosts? to keep\b",
+    r"\bkeeping (?:a site|it|software)(?: still)? (?:takes work|working|right)",
+    r"\bcheap(?:er)?\. keeping (?:it )?(?:didn|did not)",
+    r"\bmove the site, keep it\b",
+    r"\bowning (?:software )?means keeping\b",
+]), re.I)
 # Claims the kit must not make (house copy laws); matched in .md files, case-insensitive.
 BANNED_MD_PHRASES = ["no monthly fees", "20-30 minutes", "~$10/year", ".ca ", "CA$", "Canadian"]
 # GUIDE.md and README.md are public pages: no private research file, no local path.
@@ -132,6 +146,19 @@ def check_readme() -> None:
     why = "" if not missing else ("\n      the credit to SiteCrew.ai must stay (Al, S012), and the sitecrew.ai website quotes it: change the site too; missing: "
                                   + ", ".join(repr(m) for m in missing))
     report(not missing, "README.md credits SiteCrew.ai" + why)
+
+
+# 3b2. The upkeep word is "maintain", in every shipped .md (Al, 2026-10-04)
+def check_upkeep_word() -> None:
+    hits = []
+    for p in shipped(".md"):
+        # Whole document, whitespace squashed: a phrase wrapped across two lines still counts.
+        text = re.sub(r"\s+", " ", p.read_text(encoding="utf-8", errors="replace")).strip()
+        hits += [f"{rel(p)}: {m.group(0)!r}" for m in OLD_KEEP_RE.finditer(text)]
+    why = "" if not hits else ("\n      the agent MAINTAINS the site; 'keep' is only for holding on (keep renting, yours to keep). "
+                               "The sitecrew.ai website quotes the README: change it too. Found:"
+                               + "".join(f"\n      {h}" for h in hits))
+    report(not hits, "the upkeep word is 'maintain', not 'keep' (Al, 2026-10-04)" + why)
 
 
 # 3c. AaSS is expanded at first use in every shipped .md: "Agent as Software Solution"
@@ -351,6 +378,7 @@ check_compile()
 check_usage()
 check_text()
 check_readme()
+check_upkeep_word()
 check_aass()
 check_references()
 check_env()

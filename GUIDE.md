@@ -1,6 +1,6 @@
 # Your website, on hosting you own
 
-SiteCrew AaSS Kit (AaSS means Agent as Software Solution): a free kit that puts your website on Cloudflare Pages, with an AI agent that builds it and keeps it for you. Bring a site you rent today, or start a new one.
+SiteCrew AaSS Kit (AaSS means Agent as Software Solution): a free kit that puts your website on Cloudflare Pages, with an AI agent that builds it and maintains it for you. Bring a site you rent today, or start a new one.
 
 ## 0. What this is, in one screen
 
@@ -25,7 +25,7 @@ All prices in this guide are in USD. Use any currency converter for your own cur
 
 ### Why this kit exists
 
-On Nov 29, 2025, Alex G.'s web host sent a bill: $710.82 for three more years of shared hosting for svsinc.com, his agency's site [R7]. He decided to stop renting and start owning. He built AI agents to do that work for himself first: move the site, keep it, change it when asked. This kit is the free part of what he built. It is a gift, and it can be one because Cloudflare hosts sites like yours for free.
+On Nov 29, 2025, Alex G.'s web host sent a bill: $710.82 for three more years of shared hosting for svsinc.com, his agency's site [R7]. He decided to stop renting and start owning. He built AI agents to do that work for himself first: move the site, maintain it, and change it when asked. This kit is the free part of what he built. It is a gift, and it can be one because Cloudflare hosts sites like yours for free.
 
 **This kit is an example of what's possible.** Take it, change it, and build any solution you want with it: that is the method, an AI agent as your software solution. We share what we learned, the pain and how we solved it, so you can do it yourself. If you'd rather have our already tested agents and solutions, they are in the Practical AI Community.
 
@@ -94,7 +94,7 @@ Download this kit, open your agent in the kit's folder, and tell it:
 - What it does. Pages only? A contact form? A store? Bookings?
 - What you want it to become.
 
-Then the agent thinks the problem through and **offers you a list of options, not one path.** For example: plain HTML, WordPress (on Cloudflare Pages that means a static export, such as the Simply Static plugin; a live WordPress is a different road, SiteCrew Paid), Next.js, Astro, and others. Each comes with its trade-offs (how easy it is to change, what it costs to keep, what it can do). The agent says which it would pick and why. **You choose.**
+Then the agent thinks the problem through and **offers you a list of options, not one path.** For example: plain HTML, WordPress (on Cloudflare Pages that means a static export, such as the Simply Static plugin; a live WordPress is a different road, SiteCrew Paid), Next.js, Astro, and others. Each comes with its trade-offs (how easy it is to change, what it costs to maintain, what it can do). The agent says which it would pick and why. **You choose.**
 
 ## 3. Get your content out (moving a site)
 
@@ -160,7 +160,7 @@ You don't need a recipe from us. Ask your agent: it can read Zoho's own setup pa
 
 Mind the renewal date. If your plan renews next week, cancel before it renews, but only after step 2 passes. If it is tight, ask the agent to help you plan the timing.
 
-## 8. After launch: the agent keeps it
+## 8. After launch: the agent maintains it
 
 Changes, new pages, blog posts: you ask, the agent edits, you read what it did, you approve, and it publishes. You can ask in plain words ("change the phone number on the contact page").
 
@@ -174,12 +174,12 @@ The proof for this kit's road is the aass.co site (AaSS means Agent as Software 
 
 ## 10. The other side of the coin
 
-Building got cheap. Keeping did not.
+Building got cheap. Maintaining did not.
 
 - **The domain costs money every year.** Currently $10.46 to register and to renew a .com at Cloudflare; prices can change [R2].
 - **The agent runs on a paid AI plan,** or on a free tier with limits [R3].
 - **You give up the drag-and-drop editor** and the builder's support desk.
-- **Keeping a site still takes work.** Updates, a form that breaks, a security fix. The agent makes this lighter. It does not make it free.
+- **Maintaining a site still takes work.** Updates, a form that breaks, a security fix. The agent makes this lighter. It does not make it free.
 
 **A builder can be the right choice.** Many builders serve their owners well. WordPress.com's Personal plan is $4 a month paid yearly, and Carrd Pro Standard is $19 a year [R4]. Mainstream site plans cost more: Webflow Basic $15, Wix Light $17 and Squarespace Basic $19 a month paid yearly, and Shopify's Basic store plan $29 [R4]. A free domain is often the first year only [R4]. If you want the editor and the help desk, and the price feels fair, stay. If you want to own your data, your code and your process, this kit is for you. You answer the test.
 
