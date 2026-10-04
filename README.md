@@ -47,7 +47,7 @@ On Nov 29, 2025, Alex G.'s web host billed him $710.82 for three more years of s
 
 ## Where it comes from
 
-**SiteCrew.ai** is a website product in development at Strategic Viral Services Inc., Alex G.'s company: an AI crew for a business website, where an agent builds the site, publishes it and maintains it, and the owner says yes before anything goes live. The full product (your own server, a back office where you talk to your site) is not running yet. This kit is its free starter, and the kit works today: it put [aass.co](https://aass.co) on Cloudflare Pages on Oct 2, 2026 (we filmed the run; the video is coming).
+**[SiteCrew.ai](https://sitecrew.ai)** is a website product in development at Strategic Viral Services Inc., Alex G.'s company: an AI crew for a business website, where an agent builds the site, publishes it and maintains it, and the owner says yes before anything goes live. The full product (your own server, a back office where you talk to your site) is not running yet. This kit is its free starter, and the kit works today: it put [aass.co](https://aass.co) on Cloudflare Pages on Oct 2, 2026 (we filmed the run; the video is coming).
 
 **AaSS** is the same idea as a method, so anyone can learn it and do it. AaSS (Agent as Software Solution) is a software ownership model where an AI agent builds, runs and maintains software you own, instead of software you rent. More: [aass.co/what-is-aass](https://aass.co/what-is-aass)
 

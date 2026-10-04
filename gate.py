@@ -28,8 +28,10 @@ BANNED = ["admin:repo_hook", "No expiration", "paramiko", "ssh_binary",
 # sitecrew.ai is banned in every shipped .md/.py except the root README.md,
 # where it is the deliberate credit (the credit, Al S012).
 CREDIT_NAME = "sitecrew.ai"
-# The old kit name and repo URL must not come back, and sitecrew.ai is named, never
-# linked (it serves no page yet, checked 2026-10-03). Matched everywhere, README.md included.
+# The old kit name and repo URL must not come back. sitecrew.ai is LIVE since Oct 4,
+# 2026 (Al): the root README.md may link it in exactly one form, SITE_LINK_OK. Every
+# other link form, and any link outside the README, stays RED.
+SITE_LINK_OK = "](https://sitecrew.ai)"
 _SITE = r"sitecrew\.ai(?![\w-])(?!\.[a-z])"  # not sitecrew.ai.example.com
 BANNED_EVERYWHERE_RE = [
     ("old kit name", re.compile(r"\bsitecrew[ -]free\b", re.I)),
@@ -123,8 +125,10 @@ def check_text() -> None:
             continue
         text = p.read_text(encoding="utf-8", errors="replace").lower()
         hits += [f"{rel(p)}: {w}" for w in BANNED if w.lower() in text]
+        is_readme = p.parent == ROOT and p.name == "README.md"
+        scan = text.replace(SITE_LINK_OK, "](allowed)") if is_readme else text
         hits += [f"{rel(p)}: {label}: {m.group(0)}" for label, rx in BANNED_EVERYWHERE_RE
-                 for m in rx.finditer(text)]
+                 for m in rx.finditer(scan)]
         if CREDIT_NAME in text and not (p.parent == ROOT and p.name == "README.md"):
             hits.append(f"{rel(p)}: {CREDIT_NAME} (allowed only in the root README.md credit)")
         if p.suffix == ".md":
