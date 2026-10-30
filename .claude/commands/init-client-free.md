@@ -101,10 +101,22 @@ The nameservers move later, in Step 7, after the site works and the mail records
 
 ### Cloudflare API Token
 
-> "Now I need an API token so I can set up your hosting. **You paste it into a file yourself;
-> never paste it here in the chat.**
+Keys go through the settings window, never the chat and never a file opened by hand. Open it on the
+owner's screen first:
+
+```bash
+python .claude/scripts/settings_window.py open
+```
+
+It shows one box per key, with the clicks for each, an **Open the page** button and **Save**, and saves
+into `.claude/scripts/.env`, the file the scripts read. If it says it cannot open a window (no Tk, or
+no screen), tell the owner what it printed: it names the package to install, and the editor way as
+the last resort.
+
+> "Now I need an API token so I can set up your hosting. **You paste it into the settings window I
+> just opened (Your website's keys); never paste it here in the chat.**
 >
-> 1. Go to: https://dash.cloudflare.com/profile/api-tokens
+> 1. Go to: https://dash.cloudflare.com/profile/api-tokens (or click **Open the page** next to the token's box)
 > 2. 'Create Token', then 'Create Custom Token' (at the bottom). Name it 'SiteCrew'
 > 3. Permissions, add these three:
 >    - Zone → Zone → Read
@@ -112,15 +124,17 @@ The nameservers move later, in Step 7, after the site works and the mail records
 >    - Account → Cloudflare Pages → Edit
 > 4. Zone Resources: 'Include → Specific zone → [your domain]' (limits both Zone permissions to your domain)
 > 5. 'Continue to summary' → 'Create Token' and copy the token (you only see it once)
-> 6. Copy `.claude/scripts/.env.example` to `.claude/scripts/.env` (if you haven't yet), open `.env`
->    in your editor, paste the token after `CF_API_TOKEN=`, and save.
+> 6. In the settings window, paste it into the **Cloudflare API token** box and click **Save**
 >
-> Tell me when it's saved. (Don't tell me the token.)"
+> Tell me when it says saved. (Don't tell me the token.)"
 
 Then the Account ID (not secret):
 
 > "Your Cloudflare Account ID: open your domain in the dashboard, then Overview, and find the **API**
-> section on the right. Copy the **Account ID** (not the Zone ID) and put it after `CF_ACCOUNT_ID=` in `.env`."
+> section on the right. Copy the **Account ID** (not the Zone ID), paste it into the window's
+> **Cloudflare Account ID** box, and click **Save**."
+
+If the owner closed the window, open it again with the same command.
 
 Never ask for, echo or print a token. Verify:
 
@@ -139,12 +153,13 @@ Ask: "Do you have a GitHub account?" If not: "GitHub is where your site's files 
 > "Please create ONE empty repository for your website:
 > 1. Go to https://github.com/new
 > 2. Name it (for example `mybusiness-site`), leave it empty (no README, .gitignore or license)
-> 3. Click 'Create repository' and tell me its address."
+> 3. Click 'Create repository', copy the address from your browser, paste it into the settings
+>    window's **Your site's GitHub repository** box, and click **Save**."
 
-Parse the address into `GITHUB_OWNER` and `GITHUB_REPO`. Ask whether the repository is public or private.
+Ask whether the repository is public or private.
 
-> "Now a token limited to that repository's files. **You paste it into a file yourself; never paste it
-> here in the chat.**
+> "Now a token limited to that repository's files. **You paste it into the settings window; never
+> paste it here in the chat.**
 >
 > 1. Go to https://github.com/settings/personal-access-tokens/new
 > 2. Token name 'SiteCrew'. Expiration: **90 days**
@@ -154,15 +169,20 @@ Parse the address into `GITHUB_OWNER` and `GITHUB_REPO`. Ask whether the reposit
 > 5. Permissions: click **Add permissions**, choose **Contents**, and set it to **Access: Read and write**
 >    (Metadata, read-only, is added and marked Required). Add nothing else
 > 6. 'Generate token' and copy it
-> 7. In `.claude/scripts/.env`, paste it after `GITHUB_TOKEN=` and write `GITHUB_REPO=your-username/mybusiness-site` on the next line. Save.
+> 7. In the settings window, paste it into the **GitHub token** box and click **Save**. When every
+>    key says saved, close the window
 >
-> Tell me when it's saved. (Don't tell me the token.)"
+> Tell me when it's closed. (Don't tell me the token.)"
 
 Never ask for, echo or print a token. Verify:
 
 ```bash
+python .claude/scripts/settings_window.py list
 python .claude/scripts/github_api.py check
 ```
+
+`list` shows each key's state, never a key, and ends with "Every needed key is saved" (exit 0). It
+shows the repository as owner/name (not secret): save the two parts as `GITHUB_OWNER` and `GITHUB_REPO`.
 
 It must say the token reaches the repository with push access. Then ask the owner to confirm, in
 GitHub's token settings, the three things the script prints: only this repository is selected,
@@ -457,7 +477,8 @@ Create `.agent/free-setup-progress.md`:
 ```
 
 Also fill the memory templates (`.claude/memory-templates/SOUL-free.md`, `USER.md`) into `My-Vault/Memory/`
-(no tokens in them). Remind the owner that the GitHub token expires on the date above and needs renewing.
+(no tokens in them). Remind the owner that the GitHub token expires on the date above and needs renewing:
+a new token for the same repository, pasted into the settings window's GitHub token box with **Replace**.
 
 ---
 

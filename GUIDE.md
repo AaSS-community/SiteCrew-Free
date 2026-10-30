@@ -125,14 +125,15 @@ GitHub is where your site's files live, with a history of every change.
 
 - You create one empty repository for the site (one click on GitHub).
 - The agent shows you how to make a **fine-grained token** for that one repository only, able to change its files and nothing else, with an expiry date. That is the least access that works: the token can write to that one repository only. (GitHub fine-grained tokens can still read public repositories, which anyone can read anyway.) If the repository belongs to an organization, you pick the organization as the token's owner, and the organization may have to approve the token before it works.
-- You paste the token into a settings file on your own computer, not into the chat.
+- You paste the token into the kit's **settings window**, not into the chat. The agent opens it on your screen: one box per key, the clicks to get each one, an **Open the page** button, and **Save**. It keeps your keys in one file on your own computer that is never published, and a saved key shows as dots, never itself. (The window needs Python's Tk, which Python from python.org includes on Windows and on a Mac. If it is missing, the window's command says what to install.)
 - The agent publishes to GitHub **only when you approve.** Before every publish it shows you what changed and waits for your "yes, publish".
 
 ## 6. Cloudflare: live on the internet
 
-1. Connect your GitHub repository to Cloudflare Pages.
-2. The first deploy gives you a free `something.pages.dev` address. Check every page there.
-3. HTTPS (the padlock) is automatic.
+1. You make a Cloudflare token limited to your one domain and paste it, with your Account ID, into the same settings window.
+2. Connect your GitHub repository to Cloudflare Pages.
+3. The first deploy gives you a free `something.pages.dev` address. Check every page there.
+4. HTTPS (the padlock) is automatic.
 
 **Your domain.** A bare domain (yourbusiness.com) must use Cloudflare's DNS on Pages. A www address (www.yourbusiness.com) can keep another DNS service [R1]. You can also move the domain's registration to Cloudflare, which sells domains at cost [R2].
 

@@ -4,7 +4,8 @@ GitHub helper for SiteCrew AaSS Kit (least access).
 The owner creates ONE empty repository and ONE fine-grained token for that
 repository only (Contents: Read and write, expiry 90 days). Nothing wider.
 
-Required .env vars (in .claude/scripts/.env, pasted by the owner, never in chat):
+Required .env vars (in .claude/scripts/.env, pasted by the owner into the settings window,
+settings_window.py open; never in chat):
   GITHUB_TOKEN   Fine-grained token for the one repository
                  Create at: https://github.com/settings/personal-access-tokens/new
   GITHUB_REPO    The repository as owner/name, e.g. jane/janes-bakery-site
@@ -58,8 +59,8 @@ def _config() -> tuple[str, str]:
     repo = os.getenv("GITHUB_REPO", "").strip()
     if not token or repo.count("/") != 1:
         print(
-            "GITHUB_TOKEN and GITHUB_REPO (owner/name) must be set in "
-            ".claude/scripts/.env.\nSee .claude/scripts/.env.example.",
+            "GITHUB_TOKEN and GITHUB_REPO (owner/name) must be set in .claude/scripts/.env.\n"
+            "The owner pastes them into the settings window: python .claude/scripts/settings_window.py open",
             file=sys.stderr,
         )
         sys.exit(1)

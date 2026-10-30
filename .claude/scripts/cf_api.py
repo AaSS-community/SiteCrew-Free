@@ -8,7 +8,8 @@ Required .env vars:
   CF_API_TOKEN    API token: Zone > Zone > Read + Zone > DNS > Edit (both limited to your one zone)
                   + Account > Cloudflare Pages > Edit
                   Create at: https://dash.cloudflare.com/profile/api-tokens
-                  The owner pastes it into .env, never into the chat.
+                  The owner pastes it into the settings window (settings_window.py open),
+                  which saves it in .env; never into the chat.
   CF_ACCOUNT_ID   Your Cloudflare account ID (dashboard, your domain, Overview, API section)
 
 Optional .env vars (speeds up operations — otherwise looked up by domain name):
@@ -538,7 +539,7 @@ def from_env() -> CloudflareAPI:
     if not token:
         raise EnvironmentError(
             "CF_API_TOKEN not set.\n"
-            "Create a token at https://dash.cloudflare.com/profile/api-tokens\n"
+            "The owner pastes it into the settings window: python .claude/scripts/settings_window.py open\n"
             "Required permissions: Zone Read, DNS Edit (one zone), Cloudflare Pages Edit"
         )
     return CloudflareAPI(token, account_id)

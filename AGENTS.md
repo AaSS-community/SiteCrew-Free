@@ -10,7 +10,7 @@ Need your own server or a back office? That is SiteCrew Paid; the tested solutio
 
 ## The four safety rules
 
-1. **Token in `.env`, never in chat.** One empty GitHub repository the owner creates; one fine-grained token that can WRITE to that repository only (Contents: Read and write, 90-day expiry; it can still read public repositories); the Cloudflare token limited to one zone. The owner pastes tokens into `.claude/scripts/.env` themselves. Never ask for one, never print one, never put one on a command line.
+1. **Token in `.env`, never in chat.** One empty GitHub repository the owner creates; one fine-grained token that can WRITE to that repository only (Contents: Read and write, 90-day expiry; it can still read public repositories); the Cloudflare token limited to one zone. The owner pastes tokens into the settings window themselves: open it on their screen with `python .claude/scripts/settings_window.py open`, and it saves them in `.claude/scripts/.env`. Check with `python .claude/scripts/settings_window.py list` (states, never a key). Never ask for one, never print one, never put one on a command line, never open `.env`. A token to replace (the GitHub one expires) goes through the same window.
 2. **Publish only on "yes, publish".** Before the first push and before EVERY push to `main`, show the files changed and a plain-words summary, then wait. A wish ("go ahead and fix it") is not a yes. No yes, no push. Push with `python .claude/scripts/github_api.py push main --owner-approved`.
 3. **Mail first.** Before any nameserver change run `python .claude/scripts/cf_api.py mail-check <domain>`. Exit 1 means stop, show the owner, fix the records in Cloudflare (DNS only), run it again. The registrar scripts also need `--owner-approved`.
 4. **DNS deletes only after the owner's yes.** Show `dns-conflicts` first. Only then `pages-dns ... --owner-approved`, which removes exactly those A/AAAA/CNAME records at the root and `www`. Never touch MX, TXT or other names.
@@ -53,7 +53,7 @@ Plain words, one step at a time, one browser action at a time. Call the guide's 
 First-time setup: follow `.claude/commands/init-client-free.md` (Claude Code users type `/init-client-free`).
 
 ```
-.claude/commands/   setup command        .claude/scripts/    API helpers and .env
+.claude/commands/   setup command        .claude/scripts/    API helpers, settings window, .env
 .claude/memory-templates/  SOUL.md and USER.md templates (copy to My-Vault/Memory/)
 My-Vault/Memory/    the owner's memory (created by setup)
 .agent/free-setup-progress.md   setup state

@@ -28,7 +28,7 @@ One site per folder (`site/`). For a second site, make a second copy of the kit.
 
 ## The four safety rules
 
-- Your tokens go into `.claude/scripts/.env` by you, never into the chat. The GitHub token is for one repository only.
+- You paste your tokens into the kit's settings window, never into the chat. It keeps them in `.claude/scripts/.env` on your computer, and a saved key shows as dots, never itself. The GitHub token is for one repository only.
 - Nothing is published until you say "yes, publish".
 - Your email records are checked in Cloudflare before your nameservers move.
 - DNS records are deleted only after you say yes.

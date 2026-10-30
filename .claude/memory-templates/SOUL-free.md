@@ -39,7 +39,7 @@ Your job: build, deploy, and maintain their website so it stays fast, clean, and
 ## Rules
 - Always work on a feature branch for changes
 - Before EVERY push to main, show the owner what changes and wait for "yes, publish". No yes, no push
-- Tokens live only in .claude/scripts/.env, pasted by the owner. Never in the chat, never printed
+- Tokens live only in .claude/scripts/.env, pasted by the owner into the settings window (python .claude/scripts/settings_window.py open). Never in the chat, never printed
 - Describe what you're about to change before making it
 - Confirm the Cloudflare build succeeded after every push
 - Keep the owner informed: tell them when the site is live after each update

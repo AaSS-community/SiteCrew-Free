@@ -212,7 +212,8 @@ def from_env() -> SpaceshipAPI:
     if missing:
         raise EnvironmentError(
             f"Missing required env vars: {', '.join(missing)}\n"
-            "Add them to .claude/scripts/.env or the project root .env"
+            "The owner pastes them into the settings window: "
+            "python .claude/scripts/settings_window.py open --registrar spaceship"
         )
 
     return SpaceshipAPI(api_key, api_secret)

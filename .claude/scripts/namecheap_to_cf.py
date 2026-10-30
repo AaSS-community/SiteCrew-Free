@@ -217,7 +217,8 @@ def from_env() -> NamecheapAPI:
     if missing:
         raise EnvironmentError(
             f"Missing required env vars: {', '.join(missing)}\n"
-            "Add them to .claude/scripts/.env or the project root .env\n"
+            "The owner pastes them into the settings window: "
+            "python .claude/scripts/settings_window.py open --registrar namecheap\n"
             "Whitelist your IP at: Namecheap -> Account -> Profile -> API Access"
         )
 

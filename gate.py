@@ -68,6 +68,7 @@ PUBLIC_DOCS = ("GUIDE.md", "README.md")
 PUBLIC_BANNED = ["kit-research", "c:\\users", "c:/users", "/users/", "\\projects\\"]
 
 failures = 0
+skipped = 0
 
 
 def report(ok: bool, text: str) -> None:
@@ -75,6 +76,13 @@ def report(ok: bool, text: str) -> None:
     if not ok:
         failures += 1
     print(f"{'PASS' if ok else 'FAIL'}  {text}")
+
+
+def skip(text: str) -> None:
+    """A check that could not run here: printed, and counted in the result line."""
+    global skipped
+    skipped += 1
+    print(f"SKIP  {text}")
 
 
 def shipped(*suffixes: str):
@@ -163,6 +171,23 @@ def check_upkeep_word() -> None:
                                "The sitecrew.ai website quotes the README: change it too. Found:"
                                + "".join(f"\n      {h}" for h in hits))
     report(not hits, "the upkeep word is 'maintain', not 'keep' (Al, 2026-10-04)" + why)
+
+
+# 3b3. Keys go through the settings window (Al, 2026-10-29): no .md sends the owner to type a key into a file
+OLD_KEY_STEP_RE = re.compile(r"paste (?:it|the token|them|each key) after `?[A-Z_]+=|"
+                             r"open `?\.env`? in (?:your|an?) (?:text )?editor|"
+                             r"(?:put|write) it after `?[A-Z_]+=`? in `?\.env", re.I)
+
+
+def check_key_step() -> None:
+    hits = []
+    for p in shipped(".md"):
+        text = re.sub(r"[\s>]+", " ", p.read_text(encoding="utf-8", errors="replace"))
+        hits += [f"{rel(p)}: {m.group(0)!r}" for m in OLD_KEY_STEP_RE.finditer(text)]
+    why = "" if not hits else ("\n      the owner pastes keys into the settings window "
+                               "(python .claude/scripts/settings_window.py open), never into a file by hand. Found:"
+                               + "".join(f"\n      {h}" for h in hits))
+    report(not hits, "keys go through the settings window, not a file edited by hand" + why)
 
 
 # 3c. AaSS is expanded at first use in every shipped .md: "Agent as Software Solution"
@@ -355,6 +380,107 @@ def check_scan_order() -> None:
     report(ok, "init-client-free.md: secret scan comes before the first git commit" + why)
 
 
+# 10. The settings window saves keys safely: one line in place, readable by the scripts, never shown
+def check_settings_window() -> None:
+    import tempfile
+    sys.path.insert(0, str(SCRIPTS))
+    import cf_api
+    import settings_window as sw
+    token, gh = "cf" + "Q" * 38, "github_pat_" + "A" * 30  # shaped like keys, not keys
+
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp, "keys")
+        sw.save("CF_API_TOKEN", f"  {token}\n", path)
+        report(path.read_bytes() == f"CF_API_TOKEN={token}\n".encode(),
+               "settings window: a new key file holds exactly the one saved line")
+
+        before = ("# comment kept\r\nCF_API_TOKEN=old\r\nGITHUB_TOKEN=\r\n\r\nOTHER='x y'\r\n").encode()
+        path.write_bytes(before)
+        sw.save("GITHUB_TOKEN", gh, path)
+        sw.save("GITHUB_TOKEN", gh, path)
+        want = before.replace(b"GITHUB_TOKEN=\r\n", f"GITHUB_TOKEN={gh}\r\n".encode())
+        report(path.read_bytes() == want,
+               "settings window: Save changes only its own line (comments, order, CRLF kept; twice = one line)")
+
+        sw.save("CF_API_TOKEN", token, path)
+        sw.save("GITHUB_REPO", "https://github.com/jane/janes-bakery-site.git", path)
+        names = ("CF_API_TOKEN", "GITHUB_TOKEN", "GITHUB_REPO")
+        saved = {k: os.environ.pop(k, None) for k in names}
+        try:
+            cf_api._parse_env(path)
+            got = tuple(os.environ.get(k) for k in names)
+        finally:
+            for k, v in saved.items():
+                os.environ.pop(k, None)
+                if v is not None:
+                    os.environ[k] = v
+        try:
+            from dotenv import dotenv_values
+            got_dotenv = tuple(dotenv_values(path).get(k) for k in names)
+        except ImportError:
+            got_dotenv = got
+        want = (token, gh, "jane/janes-bakery-site")
+        report(got == want and got_dotenv == want,
+               "settings window: what it saves, the scripts read back unchanged (both readers)")
+
+        forms = ["https://github.com/jane/janes-bakery-site", "github.com/jane/janes-bakery-site/",
+                 "git@github.com:jane/janes-bakery-site.git", "jane/janes-bakery-site"]
+        got = {sw.repo_name(f) for f in forms}
+        report(got == {"jane/janes-bakery-site"}, f"settings window: a repository address becomes owner/name ({got})")
+
+        refusals = [("empty box", "GITHUB_TOKEN", "   "),
+                    ("a failed paste (Ctrl+V as a character)", "CF_API_TOKEN", "\x16"),
+                    ("a space inside a key", "CF_API_TOKEN", "abc def"),
+                    ("the dots of a saved key", "CF_API_TOKEN", sw.SAVED_MARK + "abc"),
+                    ("a classic GitHub token", "GITHUB_TOKEN", "ghp_" + "B" * 36),
+                    ("a GitHub token in the Cloudflare box", "CF_API_TOKEN", gh),
+                    ("a web address as a key", "GITHUB_TOKEN", "https://github.com/settings/tokens"),
+                    ("an Account ID of the wrong shape", "CF_ACCOUNT_ID", "your-account-id"),
+                    ("a repository without an owner", "GITHUB_REPO", "janes-bakery-site")]
+        before = path.read_bytes()
+        let_through = []
+        for label, key, value in refusals:
+            try:
+                sw.save(key, value, path)
+                let_through.append(label)
+            except ValueError:
+                pass
+        ok = not let_through and path.read_bytes() == before
+        report(ok, "settings window: refuses bad pastes and leaves the file as it was"
+               + "".join(f"\n      saved anyway: {b}" for b in let_through))
+
+        real = sw.KEY_FILE
+        sw.KEY_FILE = path
+        out = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out):
+                code = sw.show_list([])
+        finally:
+            sw.KEY_FILE = real
+        text = out.getvalue()
+        ok = token not in text and gh not in text and "jane/janes-bakery-site" in text and "NEEDED    CF_ACCOUNT_ID" in text
+        report(ok and code == 1, f"settings window: list shows states and the repository, never a key (exit {code})")
+
+        why = sw.no_window_reason()
+        if why:
+            skip(f"settings window: the window itself ({why.split(':')[0]})")
+            return
+        path.write_text(f"CF_API_TOKEN={token}\nCF_ACCOUNT_ID=your-account-id\n", encoding="utf-8")
+        win = sw.show(sw.fields(path=path), build_only=True, path=path)
+        try:
+            win.update()
+            boxes, todo = [], [win]
+            while todo:
+                w = todo.pop()
+                todo += w.winfo_children()
+                if w.winfo_class() == "TEntry":
+                    boxes.append(w.get())
+        finally:
+            win.destroy()
+        ok = token not in boxes and sw.SAVED_MARK in boxes and "your-account-id" in boxes and len(boxes) == 4
+        report(ok, f"settings window: builds, a saved key's box shows dots, never the key ({len(boxes)} boxes)")
+
+
 # 5. No .env tracked or lying around outside .env.example
 def _is_env(name: str) -> bool:
     return name == ".env" or (name.startswith(".env.") and name != ".env.example")
@@ -383,6 +509,7 @@ check_usage()
 check_text()
 check_readme()
 check_upkeep_word()
+check_key_step()
 check_aass()
 check_references()
 check_env()
@@ -390,6 +517,8 @@ check_selftest()
 check_refusals()
 check_knowledge()
 check_scan_order()
+check_settings_window()
 
-print("GATE PASS" if not failures else f"GATE FAIL ({failures})")
+note = f" ({skipped} skipped)" if skipped else ""
+print(f"GATE PASS{note}" if not failures else f"GATE FAIL ({failures}){note}")
 sys.exit(0 if not failures else 1)
