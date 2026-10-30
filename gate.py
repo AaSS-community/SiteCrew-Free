@@ -467,18 +467,28 @@ def check_settings_window() -> None:
             return
         path.write_text(f"CF_API_TOKEN={token}\nCF_ACCOUNT_ID=your-account-id\n", encoding="utf-8")
         win = sw.show(sw.fields(path=path), build_only=True, path=path)
+
+        def widgets(w, kind):  # in the order the window shows them
+            for c in w.winfo_children():
+                if c.winfo_class() == kind:
+                    yield c
+                yield from widgets(c, kind)
         try:
             win.update()
-            boxes, todo = [], [win]
-            while todo:
-                w = todo.pop()
-                todo += w.winfo_children()
-                if w.winfo_class() == "TEntry":
-                    boxes.append(w.get())
+            entries = list(widgets(win, "TEntry"))
+            boxes = [e.get() for e in entries]
+            ok = token not in boxes and sw.SAVED_MARK in boxes and "your-account-id" in boxes and len(boxes) == 4
+            report(ok, f"settings window: builds, a saved key's box shows dots, never the key ({len(boxes)} boxes)")
+            # The owner's own steps: type the GitHub token into its box (the 4th) and click its Save.
+            saves = [b for b in widgets(win, "TButton") if b.cget("text") in ("Save", "Replace")]
+            entries[3].insert(0, gh)
+            saves[3].invoke()
+            win.update()
+            ok = (sw.held(path).get("GITHUB_TOKEN") == gh and entries[3].get() == sw.SAVED_MARK
+                  and saves[3].cget("text") == "Replace")
+            report(ok, "settings window: a click on Save writes the key, then its box shows dots and says Replace")
         finally:
             win.destroy()
-        ok = token not in boxes and sw.SAVED_MARK in boxes and "your-account-id" in boxes and len(boxes) == 4
-        report(ok, f"settings window: builds, a saved key's box shows dots, never the key ({len(boxes)} boxes)")
 
 
 # 5. No .env tracked or lying around outside .env.example
